@@ -1,35 +1,62 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import { RootProvider } from "./providers/RootProvider";
+import "./App.css";
+import LandingPage from "./pages/LandingPage";
+import GuidePage from "./pages/GuidePage";
+import WebcamPage from "./pages/WebcamPage";
+import { styled } from "styled-components";
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <RootProvider>
+      <Wrapper>
+        <PageWrapper>
+          <RouterProvider router={router} />
+        </PageWrapper>
+      </Wrapper>
+    </RootProvider>
+  );
 }
 
-export default App
+export default App;
+
+const routes = [
+  {
+    path: "/",
+    element: <LandingPage />,
+  },
+  {
+    path: "/guide",
+    element: <GuidePage />,
+  },
+  {
+    path: "/webcam",
+    element: <WebcamPage />,
+  },
+  {
+    path: "/check",
+    element: <></>,
+  },
+  {
+    path: "/result",
+    element: <></>,
+  },
+];
+
+const router = createBrowserRouter(routes);
+
+const Wrapper = styled.div`
+  padding: "0 27.5px";
+  width: "100%";
+  height: "100%";
+  box-sizing: "border-box";
+  display: "flex";
+  flex-direction: "column";
+  align-items: "center";
+`;
+
+const PageWrapper = styled.div`
+  width: "100%";
+  max-width: "$bp2";
+  position: "relative";
+`;
