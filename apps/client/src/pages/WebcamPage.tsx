@@ -1,17 +1,11 @@
 import styled from "styled-components";
-import { useEffect, useState, useRef, useContext } from "react";
-import io from "socket.io-client";
-import CenterLine from "../assets/centerLine.svg";
-import FacialLine from "../assets/facialLine.svg";
+import { useEffect, useState, useRef } from "react";
 import GuideLine from "../assets/guideLine.svg";
-import { PhotoContext } from "../providers/RootProvider";
 
 const WebcamPage = () => {
-  const socketRef = useRef<any>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const { setVerificationResult } = useContext(PhotoContext);
 
   const captureImage = () => {
     if (videoRef.current) {
@@ -69,10 +63,12 @@ const WebcamPage = () => {
 
       const imageData = captureImage();
 
-      const link = document.createElement("a");
-      link.href = imageData;
-      link.download = "captured_picture.jpg";
-      link.click();
+      if (imageData) {
+        const link = document.createElement("a");
+        link.href = imageData;
+        link.download = "captured_picture.jpg";
+        link.click();
+      }
     }
   };
 
@@ -95,6 +91,7 @@ const WebcamPage = () => {
 
   return (
     <Container>
+      {isLoading ? "loading..." : ""}
       <CameraContainer>
         <Canvas ref={canvasRef} />
         <img src={GuideLine} alt="guide line" />

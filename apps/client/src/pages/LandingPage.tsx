@@ -27,10 +27,8 @@ const LandingPage = () => {
         <Li>조명 및 그림자</Li>
       </Explanation>
       <ButtonContainer>
-        <Button type="ghost">사진첩에서 업로드</Button>
-        <Button type="cta" onClick={handleWebcamClick}>
-          지금 촬영
-        </Button>
+        <Button>사진첩에서 업로드</Button>
+        <Button onClick={handleWebcamClick}>지금 촬영</Button>
       </ButtonContainer>
     </Container>
   );
@@ -98,8 +96,8 @@ const Button = styled.button`
   margin: 8px;
   border: 1px solid #0c1870;
   border-radius: 12px;
-  background-color: ${({ type }) => (type === "cta" ? "#0c1870" : "white")};
-  color: ${({ type }) => (type === "cta" ? "white" : "#0c1870")};
+  background-color: white;
+  color: #0c1870;
   padding: 18px 16px;
   font-size: 18px;
   line-height: 32px;

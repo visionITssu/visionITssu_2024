@@ -16,9 +16,7 @@ const GuidePage = () => {
           <div>2. 규정 확인</div>
         </InformationContents>
       </Information>
-      <Button type="cta" onClick={handleWebcamStartClick}>
-        촬영 시작
-      </Button>
+      <Button onClick={handleWebcamStartClick}>촬영 시작</Button>
     </Container>
   );
 };
@@ -39,8 +37,8 @@ const Button = styled.button`
   margin: 8px;
   border: 1px solid #0c1870;
   border-radius: 12px;
-  background-color: ${({ type }) => (type === "cta" ? "#0c1870" : "white")};
-  color: ${({ type }) => (type === "cta" ? "white" : "#0c1870")};
+  background-color: #0c1870;
+  color: white;
   padding: 18px 16px;
   font-size: 18px;
   line-height: 32px;
