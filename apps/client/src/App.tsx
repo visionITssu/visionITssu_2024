@@ -5,6 +5,7 @@ import LandingPage from "./pages/LandingPage";
 import GuidePage from "./pages/GuidePage";
 import WebcamPage from "./pages/WebcamPage";
 import { styled } from "styled-components";
+import ConfirmPage from "./pages/ConfirmPage";
 
 function App() {
   return (
@@ -34,8 +35,8 @@ const routes = [
     element: <WebcamPage />,
   },
   {
-    path: "/check",
-    element: <></>,
+    path: "/confirm",
+    element: <ConfirmPage />,
   },
   {
     path: "/result",

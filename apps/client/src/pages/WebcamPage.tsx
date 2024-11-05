@@ -121,7 +121,7 @@ const WebcamPage = () => {
         {checklistArr.map((item, idx) => (
           <ChecklistContents key={idx}>
             <Check src={CheckSymbol} />
-            {item} {/* item을 사용하여 출력 */}
+            {item}
           </ChecklistContents>
         ))}
       </Checklist>
