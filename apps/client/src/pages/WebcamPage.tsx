@@ -134,7 +134,7 @@ export default WebcamPage;
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-
+  align-items: center;
   background-image: url("../assets/plane.svg");
   background-size: cover;
   background-repeat: no-repeat;
