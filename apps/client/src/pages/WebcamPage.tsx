@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import { useEffect, useState, useRef } from "react";
 import GuideLine from "../assets/guideLine.svg";
+import CheckSymbol from "../assets/checkSymbol.svg";
 
 const WebcamPage = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -89,6 +90,14 @@ const WebcamPage = () => {
       });
   }, []);
 
+  const checklistArr: string[] = [
+    "얼굴을 가리지 않았어요",
+    "정면이에요",
+    "무표정이에요",
+    "빛이 충분해요",
+    "착용물이 없어요",
+  ];
+
   return (
     <Container>
       {isLoading ? "loading..." : ""}
@@ -107,9 +116,14 @@ const WebcamPage = () => {
           />
         </VideoContainer>
       </CameraContainer>
-      <Checklist>
-        <ChecklistHeader>모든 규정을 지키면 촬영할 수 있어요</ChecklistHeader>
-        <ChecklistContents></ChecklistContents>
+      <Checklist id="Checklist">
+        {<ChecklistHeader>모든 규정을 지키면 촬영할 수 있어요</ChecklistHeader>}
+        {checklistArr.map((item, idx) => (
+          <ChecklistContents key={idx}>
+            <Check src={CheckSymbol} />
+            {item} {/* item을 사용하여 출력 */}
+          </ChecklistContents>
+        ))}
       </Checklist>
       <Button onClick={handleCaptureClick}>촬영</Button>
     </Container>
@@ -160,14 +174,46 @@ const Video = styled.video`
   height: 414px;
 `;
 
-const Checklist = styled.div``;
+const Checklist = styled.div`
+  width: 320px;
+  height: 230px;
+  border: 1px solid #0c1870;
+  border-radius: 12px;
+  background-color: #fff;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  overflow: scroll;
+`;
 
-const ChecklistHeader = styled.div``;
+const ChecklistHeader = styled.div`
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 38px;
+  letter-spacing: 1.2%;
+  position: sticky;
+  top: 0px;
+  margin-left: 10px;
+  background-color: #ffffff;
+`;
 
-const ChecklistContents = styled.div``;
+const ChecklistContents = styled.div`
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 32px;
+  letter-spacing: 1.2%;
+  margin: 10px 20px;
+  display: flex;
+  flex-direction: row;
+`;
+
+const Check = styled.img`
+  margin-right: 10px;
+`;
 
 const Button = styled.button`
-  margin: 8px;
+  margin: 20px;
   border: 1px solid #b8b8b8;
   border-radius: 12px;
   background-color: #b8b8b8;
@@ -176,4 +222,5 @@ const Button = styled.button`
   font-size: 18px;
   line-height: 32px;
   font-weight: 500;
+  width: 320px;
 `;
