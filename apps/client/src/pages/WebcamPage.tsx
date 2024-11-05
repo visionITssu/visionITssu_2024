@@ -92,10 +92,10 @@ const WebcamPage = () => {
   return (
     <Container>
       {isLoading ? "loading..." : ""}
-      <CameraContainer>
-        <Canvas ref={canvasRef} />
-        <img src={GuideLine} alt="guide line" />
-        <VideoContainer>
+      <CameraContainer id="CameraContainer">
+        <Canvas ref={canvasRef} id="Canvas" />
+        <Line src={GuideLine} alt="guide line" />
+        <VideoContainer id="VideoContainer">
           <Video
             ref={videoRef}
             onLoadedMetadata={handleMetadataLoad}
@@ -103,6 +103,7 @@ const WebcamPage = () => {
             loop
             muted
             playsInline
+            id="Video"
           />
         </VideoContainer>
       </CameraContainer>
@@ -120,7 +121,7 @@ export default WebcamPage;
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-
+  align-items: center;
   background-image: url("../assets/plane.svg");
   background-size: cover;
   background-repeat: no-repeat;
@@ -133,22 +134,23 @@ const CameraContainer = styled.div`
 `;
 
 const Canvas = styled.canvas`
-  display: none;
-  position: absolute;
-  top: 0px;
-  left: 0px;
+  top: 40px;
   width: 320px;
   height: 414px;
+`;
+
+const Line = styled.img`
+  position: relative;
+  top: -414px;
+  z-index: 1;
 `;
 
 const VideoContainer = styled.div`
   width: 320px;
   height: 414px;
   border-radius: 24px;
-  overflow: hidden;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  position: absolute;
+  top: 40px;
 `;
 
 const Video = styled.video`
@@ -156,10 +158,6 @@ const Video = styled.video`
   object-fit: cover;
   width: 320px;
   height: 414px;
-  position: absolute;
-  top: 40px;
-  left: 32px;
-  z-index: -1;
 `;
 
 const Checklist = styled.div``;
