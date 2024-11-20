@@ -39,9 +39,10 @@ export default LandingPage;
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  background-image: url("../assets/plane.svg");
+  background-image: url("src/assets/plane.svg");
   background-size: cover;
   background-repeat: no-repeat;
+  background-size: 120%;
 `;
 
 const Logo = styled.div`
