@@ -2,9 +2,7 @@ import { Injectable } from "@nestjs/common";
 import * as sharp from "sharp";
 import { Buffer } from "buffer";
 import axios from "axios";
-import * as fs from "fs/promises";
-import * as path from "path";
-import * as tf from "@tensorflow/tfjs-node";
+
 
 @Injectable()
 export class VerificationService {
@@ -15,10 +13,10 @@ export class VerificationService {
     return await this.processResult(inferenceData);
   }
   // EC2의 모델 서버 API를 호출하는 메서드
-  async loadModelFromEC2(inputData) {
+  async loadModelFromEC2(input) {
     try {
       const response = await axios.post("http://3.36.73.107:5001/predict", {
-        input: inputData,
+        input: input,
       });
       return response.data.prediction;
     } catch (error) {
