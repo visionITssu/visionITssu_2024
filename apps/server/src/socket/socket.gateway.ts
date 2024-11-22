@@ -1,4 +1,3 @@
-// video-stream.gateway.ts
 import {
   WebSocketGateway,
   WebSocketServer,
@@ -9,12 +8,11 @@ import {
   ConnectedSocket,
 } from "@nestjs/websockets";
 import { Server, Socket } from "socket.io";
-import { PythonShell } from "python-shell";
 import * as fs from "fs";
 import * as path from "path";
 import axios from "axios";
 
-@WebSocketGateway(5003, {
+@WebSocketGateway({
   namespace: "socket",
   cors: { origin: "*" },
 })
@@ -27,59 +25,59 @@ export class SocketGateway {
     await fs.promises.rm(directoryPath, { recursive: true, force: true });
   }
 
-  // EC2의 모델 서버 API를 호출하는 메서드
-  async fetchPredictionFromEC2(inputBase64: string) {
+  // validFace API 호출 메서드
+  async fetchValidationFromEC2(imageBase64: string): Promise<any> {
     try {
-      const response = await axios.post("http://127.0.0.1:5001/predict", {
-        input: inputBase64,
+      const response = await axios.post("http://3.36.73.107:5001/analyze", {
+        input: imageBase64,
       });
-      return response.data.prediction; // EC2에서 반환된 예측 결과
+      return response.data.validation; // validFace API 결과
     } catch (error) {
-      console.error("Error fetching prediction from EC2:", error);
-      throw error;
+      console.error("Error fetching validation from EC2:", error);
+      throw new Error("Failed to fetch validation from EC2");
     }
-  }
-
-  checkScore(score: number) {
-    const threshold = 0.5;
-    return score > threshold ? 0 : 1; // 스코어를 기반으로 유효성 판단
   }
 
   @SubscribeMessage("stream")
   async handleStream(
     @ConnectedSocket() client: Socket,
     @MessageBody() message: any
-  ): Promise<void> {
-    try {
-      const imageBase64 = message.image.replace(/^data:image\/\w+;base64,/, "");
+  ): Promise<any> {
+    const imageBlob = message.image.replace(/^data:image\/\w+;base64,/, ""); // 'data:image/jpeg;base64,' 접두어 제거
 
-      // EC2에서 예측 결과 가져오기
-      const ec2Predictions = await this.fetchPredictionFromEC2(imageBase64);
+    const fileName = `${Date.now()}.txt`;
+    const tempFilePath = path.join(
+      process.cwd(),
+      "src",
+      "socket_temp",
+      fileName
+    );
+    await fs.promises.mkdir(path.dirname(tempFilePath), { recursive: true });
+    await fs.promises.writeFile(
+      tempFilePath,
+      imageBlob.toString("base64"),
+      "utf8"
+    );
 
-      // 예측 결과를 처리
-      const scoreArr = ec2Predictions.map((score) => this.checkScore(score));
+    if (imageBlob) {
+      const arr = [];
 
-      const firstResult = scoreArr.every((value) => value !== 0) ? 1 : 0;
+      try {
+        // for second data: 호출된 validFace API
+        const ec2ValidationResult =
+          await this.fetchValidationFromEC2(imageBlob);
 
-      const options = {
-        scriptPath: "", // 스크립트가 위치한 경로
-        args: [imageBase64], // Python 스크립트에 전달할 인자
-      };
+        // validFace API 결과 추가
+        arr.push(...ec2ValidationResult);
 
-      // Python 스크립트를 실행해 두 번째 데이터 처리
-      const pythonShell = await PythonShell.run("Demo/validFace.py", options);
-      const secondData = pythonShell[0]
-        .match(/-?\d+|None/g)
-        .map((item) => (item === "None" ? 0 : Number(item)));
+        console.log(arr);
 
-      const finalResult = [firstResult, ...secondData];
-      console.log("Final Result:", finalResult);
-
-      // 클라이언트에 최종 결과 전달
-      client.emit("stream", finalResult);
-    } catch (error) {
-      console.error("Error processing stream:", error);
-      client.emit("stream", { error: "Failed to process stream." });
+        // 클라이언트로 결과 전송
+        client.emit("stream", arr);
+      } catch (error) {
+        console.error("Error processing validation:", error);
+        client.emit("stream", { error: "Validation failed" });
+      }
     }
   }
 }

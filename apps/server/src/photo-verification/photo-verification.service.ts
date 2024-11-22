@@ -15,7 +15,7 @@ export class VerificationService {
   // EC2의 모델 서버 API를 호출하는 메서드
   async loadModelFromEC2(input) {
     try {
-      const response = await axios.post("http://3.36.73.107:5001/predict", {
+      const response = await axios.post("http://localhost:5001/predict", {
         input: input,
       });
       return response.data.prediction;
@@ -66,6 +66,7 @@ export class VerificationService {
       for (let i = 0; i < valid_detections_data; i++) {
         boxes_data.slice(i * 4, (i + 1) * 4);
         score_arr.push(this.checkScore(scores_data[i].toFixed(2)));
+        console.log(score_arr);
       }
       const result = score_arr.every((value) => value !== 0) ? 1 : 0;
       arr.push(result);
