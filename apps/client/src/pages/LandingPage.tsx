@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import logo from "../assets/ai-pass.svg";
 import styled from "styled-components";
+import { Button } from "@repo/ui/button";
 
 const LandingPage = () => {
   const navigate = useNavigate();
@@ -28,8 +29,10 @@ const LandingPage = () => {
         <Li>조명 및 그림자</Li>
       </Explanation>
       <ButtonContainer>
-        <Button>사진첩에서 업로드</Button>
-        <Button onClick={handleWebcamClick}>지금 촬영</Button>
+        <Button className={"second"}>사진첩에서 업로드</Button>
+        <Button className={"primary"} clickButton={handleWebcamClick}>
+          지금 촬영
+        </Button>
       </ButtonContainer>
     </Container>
   );
@@ -102,15 +105,4 @@ const ButtonContainer = styled.div`
   margin-top: 108px;
   display: flex;
   flex-direction: column;
-`;
-const Button = styled.button`
-  margin: 8px;
-  border: 1px solid #0c1870;
-  border-radius: 12px;
-  background-color: white;
-  color: #0c1870;
-  padding: 18px 16px;
-  font-size: 18px;
-  line-height: 32px;
-  font-weight: 500;
 `;

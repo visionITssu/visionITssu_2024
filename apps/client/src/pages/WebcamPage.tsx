@@ -4,6 +4,7 @@ import GuideLine from "../assets/guideLine.svg";
 import CheckSymbol from "../assets/checkSymbol.svg";
 import { io } from "socket.io-client";
 import { useNavigate } from "react-router-dom";
+import { Button } from "@repo/ui/button";
 
 const WebcamPage = () => {
   const navigate = useNavigate();
@@ -154,7 +155,9 @@ const WebcamPage = () => {
           </ChecklistContents>
         ))}
       </Checklist>
-      <Button onClick={handleCaptureClick}>촬영</Button>
+      <Button className={"inactive"} clickButton={handleCaptureClick}>
+        촬영
+      </Button>
     </Container>
   );
 };
@@ -164,10 +167,6 @@ export default WebcamPage;
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: center;
-  background-image: url("../assets/plane.svg");
-  background-size: cover;
-  background-repeat: no-repeat;
 `;
 
 const CameraContainer = styled.div`
@@ -214,6 +213,7 @@ const Checklist = styled.div`
   flex-direction: column;
   align-items: flex-start;
   overflow: scroll;
+  margin-bottom: 40px;
 `;
 
 const ChecklistHeader = styled.div`
@@ -239,17 +239,4 @@ const ChecklistContents = styled.div`
 
 const Check = styled.img`
   margin-right: 10px;
-`;
-
-const Button = styled.button`
-  margin: 20px;
-  border: 1px solid #b8b8b8;
-  border-radius: 12px;
-  background-color: #b8b8b8;
-  color: white;
-  padding: 18px 16px;
-  font-size: 18px;
-  line-height: 32px;
-  font-weight: 500;
-  width: 320px;
 `;

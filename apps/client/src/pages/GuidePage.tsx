@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import { Button } from "@repo/ui/button";
 
 const GuidePage = () => {
   const navigate = useNavigate();
@@ -24,7 +25,9 @@ const GuidePage = () => {
           <br />- 정면, 무표정, 적절한 조명
         </InformationContents>
       </Information>
-      <Button onClick={handleWebcamStartClick}>촬영 시작</Button>
+      <Button className={"primary"} clickButton={handleWebcamStartClick}>
+        촬영 시작
+      </Button>
     </Container>
   );
 };
@@ -45,6 +48,7 @@ const Information = styled.div`
   border-radius: 12px;
   background-color: rgba(255, 255, 255, 0.8);
   height: 488px;
+  margin-bottom: 116px;
 `;
 const InformationHeader = styled.div`
   font-size: 20px;
@@ -67,15 +71,4 @@ const InformationContents = styled.div`
     position: absolute;
     left: 5px;
   }
-`;
-const Button = styled.button`
-  margin-top: 120px;
-  border: 1px solid #0c1870;
-  border-radius: 12px;
-  background-color: #0c1870;
-  color: white;
-  padding: 18px 16px;
-  font-size: 18px;
-  line-height: 32px;
-  font-weight: 500;
 `;

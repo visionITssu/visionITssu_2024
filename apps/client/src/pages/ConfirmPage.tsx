@@ -3,6 +3,7 @@ import styled from "styled-components";
 import CheckSymbol from "../assets/checkSymbol.svg";
 import Toggle from "../assets/toggle.svg";
 import { useState } from "react";
+import { Button } from "@repo/ui/button";
 
 const ConfirmPage = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -44,8 +45,12 @@ const ConfirmPage = () => {
           ))}
       </Checklist>
       <ButtonContainer>
-        <Button onClick={handleRetakeClick}>다시 촬영 (선택)</Button>
-        <Button onClick={handleCompleteClick}>여권 사진 완성</Button>
+        <Button className={"second"} clickButton={handleRetakeClick}>
+          다시 촬영 (선택)
+        </Button>
+        <Button className={"primary"} clickButton={handleCompleteClick}>
+          여권 사진 완성
+        </Button>
       </ButtonContainer>
     </Container>
   );
@@ -119,17 +124,5 @@ const ButtonContainer = styled.div`
   flex-direction: column;
   position: absolute;
   top: 600px;
-`;
-
-const Button = styled.button`
-  margin-top: 20px;
-  border: 1px solid #b8b8b8;
-  border-radius: 12px;
-  background-color: #b8b8b8;
-  color: white;
-  padding: 18px 16px;
-  font-size: 18px;
-  line-height: 32px;
-  font-weight: 500;
-  width: 320px;
+  width: 86vw;
 `;
