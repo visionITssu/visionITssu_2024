@@ -2,10 +2,14 @@ import styled from "styled-components";
 import { useEffect, useState, useRef } from "react";
 import GuideLine from "../assets/guideLine.svg";
 import CheckSymbol from "../assets/checkSymbol.svg";
+import { io } from "socket.io-client";
+import { useNavigate } from "react-router-dom";
 
 const WebcamPage = () => {
+  const navigate = useNavigate();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const socketRef = useRef<any>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const captureImage = () => {
@@ -52,6 +56,11 @@ const WebcamPage = () => {
   };
 
   const handleCaptureClick = () => {
+    //@ts-ignore
+    navigate(`/confirm?image=${encodeURIComponent(captureImage())}`);
+  };
+
+  const captureAndSendFrame = () => {
     if (canvasRef.current && videoRef.current) {
       const ctx = canvasRef.current.getContext("2d");
       ctx?.drawImage(
@@ -62,14 +71,8 @@ const WebcamPage = () => {
         canvasRef.current.height
       );
 
-      const imageData = captureImage();
-
-      if (imageData) {
-        const link = document.createElement("a");
-        link.href = imageData;
-        link.download = "captured_picture.jpg";
-        link.click();
-      }
+      const imageData = canvasRef.current.toDataURL("image/jpeg");
+      socketRef.current.emit("stream", { image: imageData });
     }
   };
 
@@ -78,16 +81,42 @@ const WebcamPage = () => {
   };
 
   useEffect(() => {
-    navigator.mediaDevices
-      .getUserMedia({ video: true })
-      .then((stream) => {
+    socketRef.current = io("http://localhost:5002/socket");
+    socketRef.current.on("stream", (data: Array<number>) => {
+      console.log("Received data from backend:", data);
+    });
+
+    const setupWebcam = async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: "user",
+            width: { exact: 414 },
+            height: { exact: 320 },
+          },
+        });
+
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
         }
-      })
-      .catch((error) => {
-        console.error("Error accessing webcam:", error);
-      });
+      } catch (err) {
+        console.error("An error ocurred : ", err);
+      }
+    };
+    setupWebcam();
+
+    const captureInterval = setInterval(captureAndSendFrame, 1500);
+
+    return () => {
+      clearInterval(captureInterval);
+
+      if (videoRef.current && videoRef.current.srcObject) {
+        // @ts-ignore
+        videoRef.current.srcObject.getTracks().forEach((track) => track.stop());
+      }
+
+      socketRef.current.disconnect();
+    };
   }, []);
 
   const checklistArr: string[] = [
