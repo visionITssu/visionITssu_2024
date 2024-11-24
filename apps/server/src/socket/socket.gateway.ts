@@ -73,14 +73,8 @@ export class SocketGateway {
         // EC2에서 validations 객체 가져오기
         const validations = await this.fetchValidationFromEC2(imageBlob);
         console.log(validations);
-
-        // 숫자 값만 배열로 추출
-        const validationArray = Object.values(validations);
-
-        console.log(validationArray);
-
         // 클라이언트로 전송
-        client.emit("stream", validationArray);
+        client.emit("stream", validations);
       } catch (error) {
         console.error("Error processing validation:", error);
         client.emit("stream", { error: error.message || "Validation failed" });
