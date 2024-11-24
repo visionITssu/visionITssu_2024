@@ -4,17 +4,20 @@ import "./App.css";
 import LandingPage from "./pages/LandingPage";
 import GuidePage from "./pages/GuidePage";
 import WebcamPage from "./pages/WebcamPage";
-import { styled } from "styled-components";
+import { styled, ThemeProvider } from "styled-components";
 import ConfirmPage from "./pages/ConfirmPage";
+import theme from "./style/theme";
 
 function App() {
   return (
     <RootProvider>
-      <Wrapper>
-        <PageWrapper>
-          <RouterProvider router={router} />
-        </PageWrapper>
-      </Wrapper>
+      <ThemeProvider theme={theme}>
+        <Wrapper>
+          <PageWrapper>
+            <RouterProvider router={router} />
+          </PageWrapper>
+        </Wrapper>
+      </ThemeProvider>
     </RootProvider>
   );
 }
