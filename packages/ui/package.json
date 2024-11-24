@@ -2,13 +2,8 @@
   "name": "@repo/ui",
   "version": "0.0.0",
   "private": true,
-  "main": "dist/button.js",
-  "types": "dist/button.d.ts",
   "exports": {
-    "./button": {
-      "import": "./src/button.tsx",
-      "require": "./dist/button.js"
-    },
+    "./button": "./src/button.tsx",
     "./card": "./src/card.tsx",
     "./code": "./src/code.tsx"
   },
