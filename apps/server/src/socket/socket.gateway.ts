@@ -50,7 +50,7 @@ export class SocketGateway {
   ): Promise<any> {
     const imageBlob = message.image.replace(/^data:image\/\w+;base64,/, "");
 
-    // Base64 유효성 검사
+    // Base64 유효성
     if (!imageBlob || !imageBlob.startsWith("/9j/")) {
       client.emit("stream", { error: "Invalid image data" });
       return;

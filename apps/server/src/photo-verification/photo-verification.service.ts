@@ -42,7 +42,6 @@ export class VerificationService {
       // 객체를 배열로 변환
       const predictionArray = predictions.output;
 
-      //객체 검출 결과 반환
       const scoreArr = predictionArray.map((pred: any) => pred.name);
 
       return scoreArr;
