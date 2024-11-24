@@ -11,7 +11,6 @@ const LandingPage = () => {
 
   return (
     <Container>
-      <BackgroundImg />
       <Logo>
         <img src={logo} alt="img" />
       </Logo>
@@ -40,19 +39,10 @@ export default LandingPage;
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-`;
-
-const BackgroundImg = styled.div`
   background-image: url("src/assets/plane.svg");
   background-size: cover;
   background-repeat: no-repeat;
-  background-size: 100%;
-  z-index: -1;
-  position: absolute;
-  left: 0;
-  top: 0;
-  height: 100vh;
-  width: 100vw;
+  background-size: 120%;
 `;
 
 const Logo = styled.div`
