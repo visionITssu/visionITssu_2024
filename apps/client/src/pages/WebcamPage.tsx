@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { useEffect, useState, useRef } from "react";
 import GuideLine from "../assets/guideLine.svg";
-import CheckSymbol from "../assets/checkSymbol.svg";
+import CheckSymbol from "../assets/checkSymbol.svg?react";
 import { io } from "socket.io-client";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@repo/ui/button";
@@ -12,6 +12,7 @@ const WebcamPage = () => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const socketRef = useRef<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isValid, setValid] = useState(false);
 
   const captureImage = () => {
     if (videoRef.current) {
@@ -85,6 +86,9 @@ const WebcamPage = () => {
     socketRef.current = io("http://localhost:5002/socket");
     socketRef.current.on("stream", (data: Array<number>) => {
       console.log("Received data from backend:", data);
+      if (data.every((item) => item === 1)) {
+        setValid(true);
+      }
     });
 
     const setupWebcam = async () => {
@@ -120,12 +124,13 @@ const WebcamPage = () => {
     };
   }, []);
 
+  const tempVerificationResult = [0, 1, 0, 1, 1];
   const checklistArr: string[] = [
+    "착용물이 없어요",
     "얼굴을 가리지 않았어요",
     "정면이에요",
     "무표정이에요",
     "빛이 충분해요",
-    "착용물이 없어요",
   ];
 
   return (
@@ -147,15 +152,20 @@ const WebcamPage = () => {
         </VideoContainer>
       </CameraContainer>
       <Checklist id="Checklist">
-        {<ChecklistHeader>모든 규정을 지키면 촬영할 수 있어요</ChecklistHeader>}
-        {checklistArr.map((item, idx) => (
-          <ChecklistContents key={idx}>
-            <Check src={CheckSymbol} />
-            {item}
-          </ChecklistContents>
-        ))}
+        <ChecklistHeader>모든 규정을 지키면 촬영할 수 있어요</ChecklistHeader>
+        {tempVerificationResult
+          .sort((a, b) => a - b)
+          .map((item, idx) => (
+            <ChecklistContents key={idx} active={item}>
+              <Check active={item} />
+              {checklistArr[idx]}
+            </ChecklistContents>
+          ))}
       </Checklist>
-      <Button className={"inactive"} clickButton={handleCaptureClick}>
+      <Button
+        className={isValid ? "primary" : "inactive"}
+        clickButton={isValid ? () => handleCaptureClick() : () => {}}
+      >
         촬영
       </Button>
     </Container>
@@ -227,7 +237,7 @@ const ChecklistHeader = styled.div`
   background-color: #ffffff;
 `;
 
-const ChecklistContents = styled.div`
+const ChecklistContents = styled.div<{ active?: number }>`
   font-weight: 600;
   font-size: 16px;
   line-height: 32px;
@@ -235,8 +245,12 @@ const ChecklistContents = styled.div`
   margin: 10px 20px;
   display: flex;
   flex-direction: row;
+  color: ${({ active, theme }) => (active ? theme.colors.blue : "gray")};
 `;
 
-const Check = styled.img`
+const Check = styled(CheckSymbol)<{ active?: number }>`
   margin-right: 10px;
+  path {
+    stroke: ${({ active, theme }) => (active ? theme.colors.blue : "gray")};
+  }
 `;

@@ -1,12 +1,12 @@
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import CheckSymbol from "../assets/checkSymbol.svg";
+import CheckSymbol from "../assets/checkSymbol.svg?react";
 import Toggle from "../assets/toggle.svg";
 import { useState } from "react";
 import { Button } from "@repo/ui/button";
 
 const ConfirmPage = () => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
   const navigate = useNavigate();
 
   const handleToggleChecklist = () => {
@@ -21,12 +21,13 @@ const ConfirmPage = () => {
     navigate("/result");
   };
 
+  const tempVerificationResult = [1, 0, 1, 0, 0];
   const checklistArr: string[] = [
+    "착용물이 없어요",
     "얼굴을 가리지 않았어요",
     "정면이에요",
     "무표정이에요",
     "빛이 충분해요",
-    "착용물이 없어요",
   ];
 
   return (
@@ -37,12 +38,14 @@ const ConfirmPage = () => {
           마지막으로 확인했어요 <ToggleImg src={Toggle} alt="toggle" />
         </ChecklistHeader>
         {isOpen &&
-          checklistArr.map((item, idx) => (
-            <ChecklistContents key={idx}>
-              <Check src={CheckSymbol} />
-              {item}
-            </ChecklistContents>
-          ))}
+          tempVerificationResult
+            .sort((a, b) => a - b)
+            .map((item, idx) => (
+              <ChecklistContents key={idx} active={item}>
+                <Check active={item} />
+                {checklistArr[idx]}
+              </ChecklistContents>
+            ))}
       </Checklist>
       <ButtonContainer>
         <Button className={"second"} clickButton={handleRetakeClick}>
@@ -104,7 +107,7 @@ const ChecklistHeader = styled.div`
 
 const ToggleImg = styled.img``;
 
-const ChecklistContents = styled.div`
+const ChecklistContents = styled.div<{ active?: number }>`
   font-weight: 600;
   font-size: 16px;
   line-height: 32px;
@@ -112,10 +115,14 @@ const ChecklistContents = styled.div`
   margin: 10px 20px;
   display: flex;
   flex-direction: row;
+  color: ${({ active, theme }) => (active ? theme.colors.blue : "gray")};
 `;
 
-const Check = styled.img`
+const Check = styled(CheckSymbol)<{ active?: number }>`
   margin-right: 10px;
+  path {
+    stroke: ${({ active, theme }) => (active ? theme.colors.blue : "gray")};
+  }
 `;
 
 const ButtonContainer = styled.div`
