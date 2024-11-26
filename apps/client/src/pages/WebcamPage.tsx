@@ -1,10 +1,11 @@
 import styled from "styled-components";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useContext } from "react";
 import GuideLine from "../assets/guideLine.svg";
 import CheckSymbol from "../assets/checkSymbol.svg?react";
 import { io } from "socket.io-client";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@repo/ui/button";
+import { PhotoContext } from "../providers/RootProvider";
 
 const WebcamPage = () => {
   const navigate = useNavigate();
@@ -12,7 +13,9 @@ const WebcamPage = () => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const socketRef = useRef<any>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isValid, setValid] = useState(false);
+  const [isValid, setValid] = useState(true);
+  const { verificationResult, setVerificationResult } =
+    useContext(PhotoContext);
 
   const captureImage = () => {
     if (videoRef.current) {
@@ -86,7 +89,12 @@ const WebcamPage = () => {
     socketRef.current = io("http://localhost:5002/socket");
     socketRef.current.on("stream", (data: Array<number>) => {
       console.log("Received data from backend:", data);
-      if (data.every((item) => item === 1)) {
+      setVerificationResult(data);
+
+      if (
+        verificationResult &&
+        verificationResult.every((item) => item === 1)
+      ) {
         setValid(true);
       }
     });
@@ -124,7 +132,8 @@ const WebcamPage = () => {
     };
   }, []);
 
-  const tempVerificationResult = [0, 1, 0, 1, 1];
+  const tempVerificationResult = [1, 1, 1, 1, 1];
+
   const checklistArr: string[] = [
     "착용물이 없어요",
     "얼굴을 가리지 않았어요",
@@ -154,13 +163,20 @@ const WebcamPage = () => {
       <Checklist id="Checklist">
         <ChecklistHeader>모든 규정을 지키면 촬영할 수 있어요</ChecklistHeader>
         {tempVerificationResult
-          .sort((a, b) => a - b)
-          .map((item, idx) => (
-            <ChecklistContents key={idx} active={item}>
-              <Check active={item} />
-              {checklistArr[idx]}
-            </ChecklistContents>
-          ))}
+          ? tempVerificationResult
+              .sort((a, b) => a - b)
+              .map((item, idx) => (
+                <ChecklistContents key={idx} active={item}>
+                  <Check active={item} />
+                  {checklistArr[idx]}
+                </ChecklistContents>
+              ))
+          : [0, 0, 0, 0, 0].map((item, idx) => (
+              <ChecklistContents key={idx} active={item}>
+                <Check active={item} />
+                {checklistArr[idx]}
+              </ChecklistContents>
+            ))}
       </Checklist>
       <Button
         className={isValid ? "primary" : "inactive"}

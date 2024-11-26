@@ -2,26 +2,60 @@ import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import CheckSymbol from "../assets/checkSymbol.svg?react";
 import Toggle from "../assets/toggle.svg";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { Button } from "@repo/ui/button";
+import { PhotoContext } from "../providers/RootProvider";
+import axiosInstance from "../axios.config";
 
 const ConfirmPage = () => {
   const [isOpen, setIsOpen] = useState(true);
   const navigate = useNavigate();
+  const { verificationResult } = useContext(PhotoContext);
+  const valid = verificationResult?.every((item) => item === 1) ? true : false;
+  const queryParams = new URLSearchParams(window.location.search);
+  const imgData = queryParams.get("image") ?? "";
 
   const handleToggleChecklist = () => {
     setIsOpen(!isOpen);
   };
 
   const handleRetakeClick = () => {
-    navigate("/guide");
+    navigate("/webcam");
   };
 
-  const handleCompleteClick = () => {
+  const base64ToBlob = (base64: string) => {
+    const byteString = atob(base64.split(",")[1]);
+    const byteArray = new Uint8Array(byteString.length);
+    const mimeString = base64.split(",")[0].split(":")[1].split(";")[0];
+
+    for (let i = 0; i < byteString.length; i++) {
+      byteArray[i] = byteString.charCodeAt(i);
+    }
+    return new Blob([byteArray], { type: mimeString });
+  };
+
+  const handleCompleteClick = async () => {
     navigate("/result");
+
+    if (imgData) {
+      const blob = base64ToBlob(imgData);
+      const formData = new FormData();
+      formData.append("image", blob);
+
+      try {
+        const res = await axiosInstance.post("/photo-edit", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+        navigate(`result?image=${encodeURIComponent(res.data)}`);
+      } catch (err) {
+        console.error(err);
+      }
+    }
   };
 
-  const tempVerificationResult = [1, 0, 1, 0, 0];
+  //const tempVerificationResult = [1, 0, 1, 0, 0];
   const checklistArr: string[] = [
     "착용물이 없어요",
     "얼굴을 가리지 않았어요",
@@ -32,15 +66,21 @@ const ConfirmPage = () => {
 
   return (
     <Container>
-      <Photo id="CameraContainer" />
+      <Photo src={imgData} />
       <Checklist id="Checklist" isOpen={isOpen}>
         <ChecklistHeader onClick={handleToggleChecklist}>
           마지막으로 확인했어요 <ToggleImg src={Toggle} alt="toggle" />
         </ChecklistHeader>
-        {isOpen &&
-          tempVerificationResult
-            .sort((a, b) => a - b)
-            .map((item, idx) => (
+        {verificationResult
+          ? verificationResult
+              .sort((a, b) => a - b)
+              .map((item, idx) => (
+                <ChecklistContents key={idx} active={item}>
+                  <Check active={item} />
+                  {checklistArr[idx]}
+                </ChecklistContents>
+              ))
+          : [0, 0, 0, 0, 0].map((item, idx) => (
               <ChecklistContents key={idx} active={item}>
                 <Check active={item} />
                 {checklistArr[idx]}
@@ -51,7 +91,10 @@ const ConfirmPage = () => {
         <Button className={"second"} clickButton={handleRetakeClick}>
           다시 촬영 (선택)
         </Button>
-        <Button className={"primary"} clickButton={handleCompleteClick}>
+        <Button
+          className={valid ? "primary" : "inactive"}
+          clickButton={valid ? () => handleCompleteClick() : () => {}}
+        >
           여권 사진 완성
         </Button>
       </ButtonContainer>
