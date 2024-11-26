@@ -33,7 +33,8 @@ export class SocketGateway {
   async loadModelFromEC2(input: string): Promise<any> {
     try {
       const response = await axios.post("http://13.125.14.183:5001/process", {
-        input: input, // Base64 인코딩된 이미지 데이터
+        //const response = await axios.post("http://localhost:5001/process", {
+      input: input, // Base64 인코딩된 이미지 데이터
       });
       return response.data; // Python에서 반환된 JSON 데이터를 반환
     } catch (error) {
@@ -44,15 +45,55 @@ export class SocketGateway {
 
   async processResult(
     predictions: any
-  ): Promise<{ yolo: string[]; facePredictions: any }> {
+  ): Promise<number[]>  {
     try {
       // YOLO와 facePredictions 데이터를 분리
       const yolo = predictions.yoloPrediction || [];
       const facePredictions = predictions.facePrediction || {};
+      console.log(yolo);
+      console.log(facePredictions);
+      let tempVerificationResult = [0, 0, 0, 0, 0]; // 기본값 0으로 초기화
 
-      console.log("Processed Data:", { yolo, facePredictions });
+      // 조건 1: YOLO 결과 확인
+      if (!yolo || yolo.length === 0) {
+        tempVerificationResult[0] = 0; // yolo가 비어있을 경우 0
+      } else {
+        tempVerificationResult[0] = 1; // yolo에 값이 있으면 1
+      }
 
-      return { yolo, facePredictions };
+      // 조건 2: 얼굴 밝기와 눈썹
+      if (
+        facePredictions.valid_face_brightness === 1 &&
+        facePredictions.valid_eyebrow === 1
+      ) {
+        tempVerificationResult[1] = 1;
+      }
+
+      // 조건 3: 얼굴 정면 확인
+      if (
+        facePredictions.valid_face_horizon === 1 &&
+        facePredictions.valid_face_vertical === 1
+      ) {
+        tempVerificationResult[2] = 1;
+      }
+
+      // 조건 4: 표정 확인
+      if (
+        facePredictions.valid_mouth_openness === 1 &&
+        facePredictions.valid_mouth_smile === 1
+      ) {
+        tempVerificationResult[3] = 1;
+      }
+
+      // 조건 5: 얼굴 밝기 단독 확인
+      if (facePredictions.valid_face_brightness === 1) {
+        tempVerificationResult[4] = 1;
+      }
+
+      console.log("Final Verification Result:", tempVerificationResult);
+      //console.log("Processed Data:", tempVerificationResult);
+
+      return tempVerificationResult;
     } catch (error) {
       console.error("Error processing predictions:", error.message);
       throw new Error("Prediction result processing failed");
@@ -88,9 +129,9 @@ export class SocketGateway {
       try {
         Promise.all([this.loadModelFromEC2(imageBlob)])
           .then(async (result) => {
-            const objectDetection = await this.processResult(result[0]);
+            const tempVerificationResult = await this.processResult(result[0]);
             client.emit("stream", {
-              objectDetection,
+              tempVerificationResult,
             });
           })
           .catch((error) => {
