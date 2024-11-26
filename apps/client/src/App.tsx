@@ -7,6 +7,7 @@ import WebcamPage from "./pages/WebcamPage";
 import { styled, ThemeProvider } from "styled-components";
 import ConfirmPage from "./pages/ConfirmPage";
 import theme from "./style/theme";
+import ResultPage from "./pages/ResultPage";
 
 function App() {
   return (
@@ -43,7 +44,7 @@ const routes = [
   },
   {
     path: "/result",
-    element: <></>,
+    element: <ResultPage />,
   },
 ];
 

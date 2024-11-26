@@ -13,7 +13,7 @@ const WebcamPage = () => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const socketRef = useRef<any>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isValid, setValid] = useState(true);
+  const [isValid, setIsValid] = useState(true);
   const { verificationResult, setVerificationResult } =
     useContext(PhotoContext);
 
@@ -87,15 +87,15 @@ const WebcamPage = () => {
 
   useEffect(() => {
     socketRef.current = io("http://localhost:5002/socket");
-    socketRef.current.on("stream", (data: Array<number>) => {
-      console.log("Received data from backend:", data);
-      setVerificationResult(data);
+    socketRef.current.on("stream", (data: Array<number> | Array<any>) => {
+      console.log("Received data from backend:", data.tempVerificationResult);
+      setVerificationResult(data.tempVerificationResult);
 
       if (
         verificationResult &&
         verificationResult.every((item) => item === 1)
       ) {
-        setValid(true);
+        setIsValid(true);
       }
     });
 
@@ -118,7 +118,7 @@ const WebcamPage = () => {
     };
     setupWebcam();
 
-    const captureInterval = setInterval(captureAndSendFrame, 1500);
+    const captureInterval = setInterval(captureAndSendFrame, 3000);
 
     return () => {
       clearInterval(captureInterval);
@@ -162,8 +162,8 @@ const WebcamPage = () => {
       </CameraContainer>
       <Checklist id="Checklist">
         <ChecklistHeader>모든 규정을 지키면 촬영할 수 있어요</ChecklistHeader>
-        {tempVerificationResult
-          ? tempVerificationResult
+        {verificationResult
+          ? verificationResult
               .sort((a, b) => a - b)
               .map((item, idx) => (
                 <ChecklistContents key={idx} active={item}>
