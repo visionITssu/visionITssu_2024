@@ -30,16 +30,32 @@ export class SocketGateway {
     await fs.promises.rm(clientDirectory, { recursive: true, force: true });
   }
 
-  async fetchValidationFromEC2(imageBase64: string): Promise<any> {
+  async loadModelFromEC2(input: string): Promise<any> {
     try {
-      const response = await axios.post("http://127.0.0.1:5001/valid", {
-        input: imageBase64,
+      const response = await axios.post("http://15.164.244.34:5001/process", {
+        input: input, // Base64 인코딩된 이미지 데이터
       });
-      // validations 객체만 반환
-      return response.data || {};
+      return response.data; // Python에서 반환된 JSON 데이터를 반환
     } catch (error) {
-      console.error("Error fetching validation from EC2:", error.message);
-      throw new Error("Failed to fetch validation from EC2");
+      console.error("Error fetching prediction from model EC2:", error.message);
+      throw new Error("Model inference failed");
+    }
+  }
+
+  async processResult(
+    predictions: any
+  ): Promise<{ yolo: string[]; facePredictions: any }> {
+    try {
+      // YOLO와 facePredictions 데이터를 분리
+      const yolo = predictions.yoloPrediction || [];
+      const facePredictions = predictions.facePrediction || {};
+
+      console.log("Processed Data:", { yolo, facePredictions });
+
+      return { yolo, facePredictions };
+    } catch (error) {
+      console.error("Error processing predictions:", error.message);
+      throw new Error("Prediction result processing failed");
     }
   }
 
@@ -70,11 +86,19 @@ export class SocketGateway {
 
     if (imageBlob) {
       try {
-        // EC2에서 validations 객체 가져오기
-        const validations = await this.fetchValidationFromEC2(imageBlob);
-        console.log(validations);
-        // 클라이언트로 전송
-        client.emit("stream", validations);
+        Promise.all([this.loadModelFromEC2(imageBlob)])
+          .then(async (result) => {
+            const objectDetection = await this.processResult(result);
+            client.emit("stream:complete", {
+              objectDetection,
+            });
+          })
+          .catch((error) => {
+            console.error("Error processing validation:", error);
+            client.emit("stream:error", {
+              error: error.message || "Validation failed",
+            });
+          });
       } catch (error) {
         console.error("Error processing validation:", error);
         client.emit("stream", { error: error.message || "Validation failed" });

@@ -14,10 +14,10 @@ export class VerificationService {
 
   async loadModelFromEC2(input: string): Promise<any> {
     try {
-      const response = await axios.post("http://localhost:5001/predict", {
+      const response = await axios.post("http://15.164.244.34:5001/process", {
         input: input, // Base64 인코딩된 이미지 데이터
       });
-      return response.data.prediction; // Python에서 반환된 JSON 데이터를 반환
+      return response.data; // Python에서 반환된 JSON 데이터를 반환
     } catch (error) {
       console.error("Error fetching prediction from model EC2:", error.message);
       throw new Error("Model inference failed");
@@ -37,14 +37,17 @@ export class VerificationService {
     }
   }
 
-  async processResult(predictions: any): Promise<number[]> {
+  async processResult(
+    predictions: any
+  ): Promise<{ yolo: string[]; facePredictions: any }> {
     try {
-      // 객체를 배열로 변환
-      const predictionArray = predictions.output;
+      // YOLO와 facePredictions 데이터를 분리
+      const yolo = predictions.yoloPrediction || [];
+      const facePredictions = predictions.facePrediction || {};
 
-      const scoreArr = predictionArray.map((pred: any) => pred.name);
+      console.log("Processed Data:", { yolo, facePredictions });
 
-      return scoreArr;
+      return { yolo, facePredictions };
     } catch (error) {
       console.error("Error processing predictions:", error.message);
       throw new Error("Prediction result processing failed");
