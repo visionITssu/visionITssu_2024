@@ -88,7 +88,7 @@ export class SocketGateway {
       try {
         Promise.all([this.loadModelFromEC2(imageBlob)])
           .then(async (result) => {
-            const objectDetection = await this.processResult(result);
+            const objectDetection = await this.processResult(result[0]);
             client.emit("stream:complete", {
               objectDetection,
             });
