@@ -14,7 +14,7 @@ export class VerificationService {
 
   async loadModelFromEC2(input: string): Promise<any> {
     try {
-      const response = await axios.post("http://13.125.14.183:5001/process", {
+      const response = await axios.post("http://localhost:5001/process", {
         input: input, // Base64 인코딩된 이미지 데이터
       });
       return response.data; // Python에서 반환된 JSON 데이터를 반환
