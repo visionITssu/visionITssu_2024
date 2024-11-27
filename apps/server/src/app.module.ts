@@ -3,11 +3,11 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
 import { SocketModule } from './socket/socket.module';
-import { VerificationModule } from './photo-verification/photo-verification.module';
-
+import { EditModule } from "./photo-edit/photo-edit.module";
+import { VerificationModule } from "./photo-verification/photo-verification.module";
 
 @Module({
-  imports: [VerificationModule, SocketModule],
+  imports: [VerificationModule, EditModule, SocketModule],
   controllers: [AppController],
   providers: [AppService],
 })
