@@ -21,10 +21,6 @@ export class PhotoEditService {
         args: [inputFilePath],
       };
 
-      //await fs.mkdir(path.dirname(inputFilePath), { recursive: true });
-      //await fs.writeFile(inputFilePath, file.buffer.toString('base64'), 'utf8');
-      //await PythonShell.run('Demo/cropface.py', options);
-
       const imageBuffer = await fs.readFile(outputImagePath);
       console.log(imageBuffer);
       const imageBase64 = imageBuffer.toString("base64");
