@@ -50,7 +50,7 @@ export class VerificationService {
 
       // 조건 1: YOLO 결과 확인
       if (!yolo || yolo.length === 0) {
-        tempVerificationResult[0] = 0; // yolo가 비어있을 경우 0
+        tempVerificationResult[0] = 1; // yolo가 비어있을 경우 1
       } else {
         tempVerificationResult[0] = 1; // yolo에 값이 있으면 1
       }
