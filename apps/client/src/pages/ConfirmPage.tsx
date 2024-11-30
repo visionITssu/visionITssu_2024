@@ -21,7 +21,7 @@ const ConfirmPage = () => {
   };
 
   const handleRetakeClick = () => {
-    navigate("/guide");
+    navigate("/");
     URL.revokeObjectURL(imgData);
   };
 

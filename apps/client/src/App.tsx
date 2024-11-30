@@ -8,6 +8,7 @@ import { styled, ThemeProvider } from "styled-components";
 import ConfirmPage from "./pages/ConfirmPage";
 import theme from "./style/theme";
 import ResultPage from "./pages/ResultPage";
+import AlbumUploadPage from "./pages/AlbumUploadPage";
 
 function App() {
   return (
@@ -29,6 +30,10 @@ const routes = [
   {
     path: "/",
     element: <LandingPage />,
+  },
+  {
+    path: "/album",
+    element: <AlbumUploadPage />,
   },
   {
     path: "/guide",
