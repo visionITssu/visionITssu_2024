@@ -5,6 +5,7 @@ import CheckSymbol from "../assets/checkSymbol.svg?react";
 import { io } from "socket.io-client";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@repo/ui/button";
+import { Modal } from "@repo/ui/modal";
 import { PhotoContext } from "../providers/RootProvider";
 
 const WebcamPage = () => {
@@ -16,6 +17,7 @@ const WebcamPage = () => {
   const [isValid, setIsValid] = useState(true);
   const { verificationResult, setVerificationResult } =
     useContext(PhotoContext);
+  const [countdown, setCountdown] = useState<number>(3);
 
   const captureImage = () => {
     if (videoRef.current) {
@@ -87,17 +89,13 @@ const WebcamPage = () => {
 
   useEffect(() => {
     socketRef.current = io("http://localhost:5002/socket");
-    socketRef.current.on("stream", (data: Array<number> | Array<any>) => {
-      console.log("Received data from backend:", data.tempVerificationResult);
-      setVerificationResult(data.tempVerificationResult);
-
-      if (
-        verificationResult &&
-        verificationResult.every((item) => item === 1)
-      ) {
-        setIsValid(true);
+    socketRef.current.on(
+      "stream",
+      (data: { tempVerificationResult: number[] | null }) => {
+        console.log("Received data from backend:", data.tempVerificationResult);
+        setVerificationResult(data.tempVerificationResult);
       }
-    });
+    );
 
     const setupWebcam = async () => {
       try {
@@ -132,7 +130,30 @@ const WebcamPage = () => {
     };
   }, []);
 
-  const tempVerificationResult = [1, 1, 1, 1, 1];
+  useEffect(() => {
+    if (verificationResult && verificationResult.every((item) => item === 1)) {
+      setIsValid(true);
+    }
+  }, [verificationResult]);
+
+  useEffect(() => {
+    if (isValid) {
+      const countdownIntervalId = setInterval(() => {
+        setCountdown((prev) => prev - 1);
+      }, 1000);
+      const timeoutId = setTimeout(() => {
+        clearInterval(countdownIntervalId);
+        handleCaptureClick();
+      }, 4000);
+
+      return () => {
+        clearTimeout(timeoutId);
+        clearInterval(countdownIntervalId);
+      };
+    }
+  }, [isValid]);
+
+  //const tempVerificationResult = [1, 1, 1, 1, 1];
 
   const checklistArr: string[] = [
     "착용물이 없어요",
@@ -145,6 +166,10 @@ const WebcamPage = () => {
   return (
     <Container>
       {isLoading ? "loading..." : ""}
+      <Modal visible={isValid.valueOf()}>
+        움직이지 말아주세요
+        <br /> <br /> {countdown > 0 ? countdown : <br />}
+      </Modal>
       <CameraContainer id="CameraContainer">
         <Canvas ref={canvasRef} id="Canvas" />
         <Line src={GuideLine} alt="guide line" />
@@ -216,9 +241,8 @@ const Line = styled.img`
 const VideoContainer = styled.div`
   width: 320px;
   height: 414px;
-  border-radius: 24px;
   position: absolute;
-  top: 40px;
+  top: 32px;
 `;
 
 const Video = styled.video`

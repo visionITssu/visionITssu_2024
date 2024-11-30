@@ -10,6 +10,14 @@ interface ButtonProps {
   clickButton?: () => void;
 }
 
+export const Button = ({ children, className, clickButton }: ButtonProps) => {
+  return (
+    <StyledButton className={className} onClick={clickButton}>
+      {children}
+    </StyledButton>
+  );
+};
+
 const StyledButton = styled.button<{ className?: string }>`
   margin: 8px;
   border-radius: 12px;
@@ -41,11 +49,3 @@ const StyledButton = styled.button<{ className?: string }>`
     }
   }}
 `;
-
-export const Button = ({ children, className, clickButton }: ButtonProps) => {
-  return (
-    <StyledButton className={className} onClick={clickButton}>
-      {children}
-    </StyledButton>
-  );
-};
