@@ -13,7 +13,7 @@ const WebcamPage = () => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const socketRef = useRef<any>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isValid, setIsValid] = useState(true);
+  const [isValid, setIsValid] = useState(false);
   const { verificationResult, setVerificationResult } =
     useContext(PhotoContext);
 
@@ -56,6 +56,7 @@ const WebcamPage = () => {
       );
       context.setTransform(1, 0, 0, 1, 0, 0);
       const dataURL = canvas.toDataURL("image/jpeg");
+      console.log(dataURL);
       return dataURL;
     }
   };
@@ -87,17 +88,13 @@ const WebcamPage = () => {
 
   useEffect(() => {
     socketRef.current = io("http://localhost:5002/socket");
-    socketRef.current.on("stream", (data: Array<number> | Array<any>) => {
-      console.log("Received data from backend:", data.tempVerificationResult);
-      setVerificationResult(data.tempVerificationResult);
-
-      if (
-        verificationResult &&
-        verificationResult.every((item) => item === 1)
-      ) {
-        setIsValid(true);
+    socketRef.current.on(
+      "stream",
+      (data: { tempVerificationResult: number[] | null }) => {
+        console.log("Received data from backend:", data.tempVerificationResult);
+        setVerificationResult(data.tempVerificationResult);
       }
-    });
+    );
 
     const setupWebcam = async () => {
       try {
@@ -131,6 +128,22 @@ const WebcamPage = () => {
       socketRef.current.disconnect();
     };
   }, []);
+
+  useEffect(() => {
+    if (verificationResult && verificationResult.every((item) => item === 1)) {
+      setIsValid(true);
+    }
+  }, [verificationResult]);
+
+  useEffect(() => {
+    if (isValid) {
+      const timeoutId = setTimeout(() => {
+        handleCaptureClick();
+      }, 3000);
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [isValid]);
 
   const tempVerificationResult = [1, 1, 1, 1, 1];
 
