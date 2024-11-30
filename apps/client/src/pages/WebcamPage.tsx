@@ -14,7 +14,7 @@ const WebcamPage = () => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const socketRef = useRef<any>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isValid, setIsValid] = useState(true);
+  const [isValid, setIsValid] = useState(false);
   const { verificationResult, setVerificationResult } =
     useContext(PhotoContext);
   const [countdown, setCountdown] = useState<number>(3);
@@ -88,6 +88,10 @@ const WebcamPage = () => {
   };
 
   useEffect(() => {
+    if (verificationResult) {
+      setVerificationResult(null);
+    }
+
     socketRef.current = io("http://localhost:5002/socket");
     socketRef.current.on(
       "stream",
@@ -133,6 +137,8 @@ const WebcamPage = () => {
   useEffect(() => {
     if (verificationResult && verificationResult.every((item) => item === 1)) {
       setIsValid(true);
+    } else {
+      setIsValid(false);
     }
   }, [verificationResult]);
 
@@ -151,9 +157,7 @@ const WebcamPage = () => {
         clearInterval(countdownIntervalId);
       };
     }
-  }, [isValid]);
-
-  //const tempVerificationResult = [1, 1, 1, 1, 1];
+  }, [isValid, verificationResult]);
 
   const checklistArr: string[] = [
     "착용물이 없어요",
@@ -167,7 +171,7 @@ const WebcamPage = () => {
     <Container>
       {isLoading ? "loading..." : ""}
       <Modal visible={isValid.valueOf()}>
-        움직이지 말아주세요
+        움직이지 말아주세요. 움직이면 재촬영이 필요합니다.
         <br /> <br /> {countdown > 0 ? countdown : <br />}
       </Modal>
       <CameraContainer id="CameraContainer">
