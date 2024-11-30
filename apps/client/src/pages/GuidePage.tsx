@@ -13,7 +13,7 @@ const GuidePage = () => {
       <Information>
         <InformationHeader>시작 전 안내</InformationHeader>
         <InformationContents>
-          핸드폰을 얼굴 높이에 맞게 고정해주세요
+          핸드폰을 얼굴 가이드라인에 맞게 고정해주세요
         </InformationContents>
         <InformationContents>
           얼굴 윤곽을 가리지 않도록 아래 사항을 확인해주세요
@@ -23,6 +23,9 @@ const GuidePage = () => {
           아래 사항을 지켜야 촬영 버튼이 활성화 돼요
           <br />- 안경, 악세사리, 머리띠, 모자, 이어폰 등 미착용
           <br />- 정면, 무표정, 적절한 조명
+        </InformationContents>
+        <InformationContents>
+          촬영 버튼이 활성화된 후 3초 뒤, 자동으로 촬영이 시작돼요
         </InformationContents>
       </Information>
       <Button className={"primary"} clickButton={handleWebcamStartClick}>

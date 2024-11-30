@@ -8,7 +8,8 @@ import { PhotoContext } from "../providers/RootProvider";
 import axiosInstance from "../axios.config";
 
 const ConfirmPage = () => {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState<boolean>(true);
+  const [imgUrl, setImgUrl] = useState<string>("");
   const navigate = useNavigate();
   const { verificationResult } = useContext(PhotoContext);
   const valid = true; //verificationResult?.every((item) => item === 1) ? true : false;
@@ -20,7 +21,8 @@ const ConfirmPage = () => {
   };
 
   const handleRetakeClick = () => {
-    navigate("/webcam");
+    navigate("/guide");
+    URL.revokeObjectURL(imgData);
   };
 
   const base64ToBlob = (base64: string) => {
@@ -35,12 +37,12 @@ const ConfirmPage = () => {
   };
 
   const handleCompleteClick = async () => {
-    navigate("/result");
-
     if (imgData) {
       const blob = base64ToBlob(imgData);
       const formData = new FormData();
       formData.append("image", blob);
+
+      console.log("formatData", formData);
 
       try {
         const res = await axiosInstance.post("/photo-edit", formData, {
@@ -48,7 +50,10 @@ const ConfirmPage = () => {
             "Content-Type": "multipart/form-data",
           },
         });
-        navigate(`result?image=${encodeURIComponent(res.data)}`);
+        const resToUrl = `result?image=${encodeURIComponent(res.data)}`;
+        console.log(resToUrl);
+        setImgUrl(resToUrl);
+        navigate(`/${resToUrl}`);
       } catch (err) {
         console.error(err);
       }
@@ -67,7 +72,7 @@ const ConfirmPage = () => {
   return (
     <Container>
       <Photo src={imgData} />
-      <Checklist id="Checklist" isOpen={isOpen}>
+      <Checklist id="Checklist" open={isOpen ? "true" : "false"}>
         <ChecklistHeader onClick={handleToggleChecklist}>
           마지막으로 확인했어요 <ToggleImg src={Toggle} alt="toggle" />
         </ChecklistHeader>
@@ -115,7 +120,7 @@ const Photo = styled.img`
   height: 275px;
 `;
 
-const Checklist = styled.div<{ isOpen: boolean }>`
+const Checklist = styled.div<{ open: string }>`
   width: 320px;
   height: 230px;
   border: 1px solid #0c1870;
@@ -129,9 +134,9 @@ const Checklist = styled.div<{ isOpen: boolean }>`
   transition:
     height 0.3s ease,
     bottom 0.3s ease;
-  height: ${({ isOpen }) => (isOpen ? "300px" : "40px")};
+  height: ${({ open }) => (open === "true" ? "300px" : "40px")};
   position: relative;
-  bottom: ${({ isOpen }) => (isOpen ? "0px" : "-260px")};
+  bottom: ${({ open }) => (open === "true" ? "0px" : "-260px")};
 `;
 
 const ChecklistHeader = styled.div`
