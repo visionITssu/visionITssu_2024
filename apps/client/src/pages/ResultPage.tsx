@@ -46,12 +46,14 @@ const ResultPage = () => {
   return (
     <Container>
       <Photo src={imgData} />
-      <Button className={"second"} clickButton={handleBack}>
-        버리고 다시 촬영
-      </Button>
-      <Button className={"primary"} clickButton={handleDownload}>
-        여권 사진 저장
-      </Button>
+      <ButtonContainer>
+        <Button className={"second"} clickButton={handleBack}>
+          버리고 다시 촬영
+        </Button>
+        <Button className={"primary"} clickButton={handleDownload}>
+          여권 사진 저장
+        </Button>
+      </ButtonContainer>
     </Container>
   );
 };
@@ -61,8 +63,20 @@ export default ResultPage;
 const Container = styled.div`
   display: flex;
   flex-direction: column;
+  align-items: center;
 `;
 
 const Photo = styled.img`
-  width: 215;
+  margin-top: 40px;
+  width: 214px;
+  height: 275px;
+`;
+
+const ButtonContainer = styled.div`
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  top: 600px;
+  width: 86vw;
 `;
