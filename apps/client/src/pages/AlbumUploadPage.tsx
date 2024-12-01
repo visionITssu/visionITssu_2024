@@ -1,33 +1,38 @@
 import { Button } from "@repo/ui/button";
 import { styled } from "styled-components";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../axios.config";
+import { PhotoContext } from "../providers/RootProvider";
 
 const AlbumUploadPage = () => {
   const navigate = useNavigate();
   const queryParams = new URLSearchParams(window.location.search);
-  const [selectedImg, setSelectedImg] = useState<string>(
+  const [selectedImgUrl, setSelectedImgUrl] = useState<string>(
     queryParams.get("image") ?? ""
   );
+  const { setVerificationResult } = useContext(PhotoContext);
 
   const handleReuploadClick = () => {
-    if (selectedImg) {
+    if (selectedImgUrl) {
       const input = document.createElement("input");
       input.type = "file";
       input.accept = "image/*";
       input.onchange = (e) => {
         const file = (e.target as HTMLInputElement).files?.[0];
+        if (file && file.type.startsWith("image/")) {
+        }
         if (file) {
           const reader = new FileReader();
           reader.onload = () => {
             const imgUrl = reader.result as string;
-            setSelectedImg(imgUrl);
+            setSelectedImgUrl(imgUrl);
+
             navigate(`/album?image=${encodeURIComponent(imgUrl)}`);
           };
           reader.readAsDataURL(file);
         } else {
-          setSelectedImg("");
+          setSelectedImgUrl("");
         }
       };
       input.click();
@@ -36,44 +41,31 @@ const AlbumUploadPage = () => {
     }
   };
 
-  const base64ToBlob = (base64: string) => {
-    const byteString = atob(base64.split(",")[1]);
-    const byteArray = new Uint8Array(byteString.length);
-    const mimeString = base64.split(",")[0].split(":")[1].split(";")[0];
-
-    for (let i = 0; i < byteString.length; i++) {
-      byteArray[i] = byteString.charCodeAt(i);
-    }
-    return new Blob([byteArray], { type: mimeString });
-  };
-
   const handleUploadClick = async () => {
-    if (selectedImg) {
-      const blob = base64ToBlob(selectedImg);
-      const formData = new FormData();
-      formData.append("image", blob);
+    if (!selectedImgUrl) {
+      alert("사진을 선택해주세요");
+      return;
+    }
 
-      console.log("formatData", formData);
+    const formData = new FormData();
+    formData.append("image", selectedImgUrl);
 
-      try {
-        const res = await axiosInstance.post("/photo-edit", formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        });
-        const resToUrl = `confirm?image=${encodeURIComponent(res.data)}`;
-        console.log(resToUrl);
-        setSelectedImg(resToUrl);
-        navigate(`/${resToUrl}`);
-      } catch (err) {
-        console.error(err);
-      }
+    try {
+      const res = await axiosInstance.post("/", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      setVerificationResult(res.data);
+      navigate(`/confirm?image=${encodeURIComponent(selectedImgUrl)}`);
+    } catch (err) {
+      console.error(err);
     }
   };
 
   return (
     <Container>
-      <SelectedPhoto src={selectedImg}></SelectedPhoto>
+      <SelectedPhoto src={selectedImgUrl}></SelectedPhoto>
       <ButtonContainer>
         <Button className="second" clickButton={handleReuploadClick}>
           다시 선택
