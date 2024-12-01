@@ -9,10 +9,9 @@ import axiosInstance from "../axios.config";
 
 const ConfirmPage = () => {
   const [isOpen, setIsOpen] = useState<boolean>(true);
-  const [imgUrl, setImgUrl] = useState<string>("");
   const navigate = useNavigate();
   const { verificationResult } = useContext(PhotoContext);
-  const valid = true; //verificationResult?.every((item) => item === 1) ? true : false;
+  const valid = verificationResult?.every((item) => item === 1) ? true : false;
   const queryParams = new URLSearchParams(window.location.search);
   const imgData = queryParams.get("image") ?? "";
 
@@ -51,8 +50,6 @@ const ConfirmPage = () => {
           },
         });
         const resToUrl = `result?image=${encodeURIComponent(res.data)}`;
-        console.log(resToUrl);
-        setImgUrl(resToUrl);
         navigate(`/${resToUrl}`);
       } catch (err) {
         console.error(err);
@@ -60,7 +57,6 @@ const ConfirmPage = () => {
     }
   };
 
-  //const tempVerificationResult = [1, 0, 1, 0, 0];
   const checklistArr: string[] = [
     "착용물이 없어요",
     "얼굴을 가리지 않았어요",

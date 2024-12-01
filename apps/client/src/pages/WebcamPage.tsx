@@ -170,7 +170,7 @@ const WebcamPage = () => {
   return (
     <Container>
       {isLoading ? "loading..." : ""}
-      <Modal visible={isValid.valueOf()}>
+      <Modal visible={true.valueOf()}>
         움직이지 말아주세요. 움직이면 재촬영이 필요합니다.
         <br /> <br /> {countdown > 0 ? countdown : <br />}
       </Modal>
