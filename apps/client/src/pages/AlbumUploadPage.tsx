@@ -48,10 +48,11 @@ const AlbumUploadPage = () => {
     }
 
     const formData = new FormData();
+    console.log(selectedImgUrl, "selectedImgURl");
     formData.append("image", selectedImgUrl);
 
     try {
-      const res = await axiosInstance.post("/", formData, {
+      const res = await axiosInstance.post("/verification", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },

@@ -120,7 +120,7 @@ const WebcamPage = () => {
     };
     setupWebcam();
 
-    const captureInterval = setInterval(captureAndSendFrame, 3000);
+    const captureInterval = setInterval(captureAndSendFrame, 500);
 
     return () => {
       clearInterval(captureInterval);
@@ -169,10 +169,12 @@ const WebcamPage = () => {
 
   return (
     <Container>
-      {isLoading ? "loading..." : ""}
-      <Modal visible={true.valueOf()}>
-        움직이지 말아주세요. 움직이면 재촬영이 필요합니다.
-        <br /> <br /> {countdown > 0 ? countdown : <br />}
+      <>{isLoading ? "loading..." : ""}</>
+      <Modal visible={isValid}>
+        <>
+          움직이지 말아주세요. 움직이면 재촬영이 필요합니다.
+          <br /> <br /> {countdown > 0 ? countdown : <br />}
+        </>
       </Modal>
       <CameraContainer id="CameraContainer">
         <Canvas ref={canvasRef} id="Canvas" />
