@@ -1,64 +1,60 @@
-import { Injectable } from '@nestjs/common';
-import { promises as fs } from 'fs';
-import * as path from 'path';
+import { Injectable } from "@nestjs/common";
 import axios from "axios";
-//import { PythonShell } from 'python-shell';
+import * as FormData from "form-data";
 
 @Injectable()
 export class PhotoEditService {
   async getEditedPhoto(file: Express.Multer.File): Promise<any> {
     try {
-      const inputData = await this.preProcessImage(file);
-      const editedPhoto = await this.loadModelFromEC2(inputData);
+      // 파일 버퍼 가져오기
+      const fileBuffer = this.preProcessImage(file);
+
+      // EC2 모델 서버 호출
+      const editedPhoto = await this.loadModelFromEC2(
+        fileBuffer,
+        file.originalname
+      );
+
       return editedPhoto;
     } catch (error) {
-      console.log("Error: ", error.message);
-      throw new Error("photo-edit error");
+      console.error("Error in getEditedPhoto: ", error.message);
+      throw new Error("Photo edit failed.");
     }
   }
 
-  async loadModelFromEC2(input: Buffer): Promise<any> {
+  async loadModelFromEC2(fileBuffer: Buffer, filename: string): Promise<any> {
     try {
-      const response = await axios.post("http://3.37.203.103:5001/crop", {
-        //const response = await axios.post("http://localhost:5001/crop", {
-        input: input, //이미지 데이터
-      });
-      return response.data; // Python에서 반환된 JSON 데이터를 반환
+      // FormData 생성
+      const formData = new FormData();
+      formData.append("image", fileBuffer, filename); // 파일 이름을 명시적으로 추가
+
+      console.log("Sending FormData to Flask server...");
+      console.log("Headers:", formData.getHeaders());
+
+      // 모델 서버 요청
+      const response = await axios.post(
+        "http://3.37.203.103:5001/crop",
+        formData,
+        {
+          headers: formData.getHeaders(), // FormData에서 자동 생성된 헤더 사용
+          responseType: "arraybuffer", // 바이너리 데이터로 수신
+        }
+      );
+
+      return response.data;
     } catch (error) {
       console.error("Error fetching crop from model EC2:", error.message);
-      throw new Error("Model inference failed");
+      throw new Error("Model inference failed.");
     }
   }
 
-  async preProcessImage(file: Express.Multer.File): Promise<Buffer> {
+  preProcessImage(file: Express.Multer.File): Buffer {
     try {
-      // const pngBuffer = file.buffer;
-      // return pngBuffer.toString("base64");
+      // 파일 버퍼 반환
       return file.buffer;
     } catch (error) {
       console.error("Error preprocessing image:", error.message);
-      throw new Error("Image preprocessing failed");
+      throw new Error("Image preprocessing failed.");
     }
   }
-
-  // async editHandler(file: Express.Multer.File): Promise<any> {
-  //   try {
-  //     const fileName = `${Date.now()}.txt`;
-  //     const inputFilePath = path.join(
-  //       process.cwd(),
-  //       "src",
-  //       "verify_temp",
-  //       fileName
-  //     );
-  //     const imageBuffer = await fs.readFile(inputFilePath);
-
-  //     const imageBase64 = imageBuffer.toString("base64");
-
-  //     this.loadModelFromEC2(imageBase64);
-
-  //     return `data:image/png;base64,${imageBase64}`;
-  //   } catch (e) {
-  //     console.log(e, "photo-edit error");
-  //   }
-  // }
 }
