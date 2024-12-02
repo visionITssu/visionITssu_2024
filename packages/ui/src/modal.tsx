@@ -9,17 +9,17 @@ interface ModalProps {
   visible: boolean;
 }
 
-export const Modal = ({ children, visible }: ModalProps) => {
+export const Modal = ({ children }: ModalProps) => {
   return (
     <>
-      <Overlay visible={visible.valueOf()} />
-      <StyledModal visible={visible.valueOf()}>{children}</StyledModal>
+      <Overlay $visible />
+      <StyledModal $visible>{children}</StyledModal>
     </>
   );
 };
 
-const Overlay = styled.div<{ visible?: boolean }>`
-  visibility: ${({ visible }) => (visible ? "visible" : "hidden")};
+const Overlay = styled.div<{ $visible?: boolean }>`
+  visibility: ${({ $visible }) => ($visible ? "visible" : "hidden")};
   position: fixed;
   top: 0;
   left: 0;
@@ -29,8 +29,8 @@ const Overlay = styled.div<{ visible?: boolean }>`
   z-index: 5;
 `;
 
-const StyledModal = styled.div<{ visible?: boolean }>`
-  visibility: ${({ visible }) => (visible ? "visible" : "hidden")};
+const StyledModal = styled.div<{ $visible?: boolean }>`
+  visibility: ${({ $visible }) => ($visible ? "visible" : "hidden")};
   font-size: 18px;
   line-height: 32px;
   font-weight: 600;
