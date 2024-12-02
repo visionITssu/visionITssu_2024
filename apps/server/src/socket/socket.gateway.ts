@@ -32,7 +32,7 @@ export class SocketGateway {
 
   async loadModelFromEC2(input: string): Promise<any> {
     try {
-      const response = await axios.post("http://13.125.14.183:5001/process", {
+      const response = await axios.post("http://3.37.203.103:5001/process", {
         //const response = await axios.post("http://localhost:5001/process", {
         input: input, // Base64 인코딩된 이미지 데이터
       });
@@ -48,10 +48,10 @@ export class SocketGateway {
   ): Promise<number[]>  {
     try {
       // YOLO와 facePredictions 데이터를 분리
-      const yolo = predictions.yoloPrediction || [];
-      const facePredictions = predictions.facePrediction || {};
-      console.log(yolo);
-      console.log(facePredictions);
+      const yolo = predictions.yolo_results.output || [];
+      const facePredictions = predictions.mediapipe_results || {};
+      //console.log(yolo);
+      //console.log(facePredictions);
       let tempVerificationResult = [0, 0, 0, 0, 0]; // 기본값 0으로 초기화
 
       // 조건 1: YOLO 결과 확인
@@ -63,31 +63,31 @@ export class SocketGateway {
 
       // 조건 2: 얼굴 밝기와 눈썹
       if (
-        facePredictions.valid_face_brightness === 1 &&
-        facePredictions.valid_eyebrow === 1
+        facePredictions.valid_face_brightness === true &&
+        facePredictions.valid_eyebrow === true
       ) {
         tempVerificationResult[1] = 1;
       }
 
       // 조건 3: 얼굴 정면 확인
       if (
-        facePredictions.valid_face_horizon === 1 &&
-        facePredictions.valid_face_vertical === 1
+        facePredictions.valid_face_horizon === true &&
+        facePredictions.valid_face_vertical === true
       ) {
         tempVerificationResult[2] = 1;
       }
 
       // 조건 4: 표정 확인
       if (
-        facePredictions.valid_mouth_openness === 1 &&
-        facePredictions.valid_mouth_smile === 1 &&
-        facePredictions.valid_eye_openness === 1
+        facePredictions.valid_mouth_openness === true &&
+        facePredictions.valid_mouth_smile === true &&
+        facePredictions.valid_eye_openness === true
       ) {
         tempVerificationResult[3] = 1;
       }
 
       // 조건 5: 얼굴 밝기 단독 확인
-      if (facePredictions.valid_face_brightness === 1) {
+      if (facePredictions.valid_face_brightness === true) {
         tempVerificationResult[4] = 1;
       }
 
