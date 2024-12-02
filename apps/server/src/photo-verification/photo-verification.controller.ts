@@ -10,7 +10,7 @@ export class VerificationController {
 
   @Post()
   @UseInterceptors(FileInterceptor("image"))
-  async handleImageUpload(@UploadedFile() file: Express.Multer.File) {
-    return this.verificationService.getVerification(file);
+  async handleImageUpload(input: string) {
+    return this.verificationService.getVerification(input);
   }
 }

@@ -5,9 +5,9 @@ import axios from "axios";
 
 @Injectable()
 export class VerificationService {
-  async getVerification(file: Express.Multer.File): Promise<any> {
-    const inputData = await this.preProcessImage(file);
-    const inferenceData = await this.loadModelFromEC2(inputData);
+  async getVerification(input: string): Promise<any> {
+    //const inputData = await this.preProcessImage(file);
+    const inferenceData = await this.loadModelFromEC2(input);
     return await this.processResult(inferenceData);
   }
 
@@ -24,18 +24,18 @@ export class VerificationService {
     }
   }
 
-  async preProcessImage(file: Express.Multer.File): Promise<string> {
-    try {
-      const pngBuffer = await sharp(file.buffer)
-        .resize({ width: 640, height: 640 })
-        .png()
-        .toBuffer();
-      return pngBuffer.toString("base64");
-    } catch (error) {
-      console.error("Error preprocessing image:", error.message);
-      throw new Error("Image preprocessing failed");
-    }
-  }
+  // async preProcessImage(file: Express.Multer.File): Promise<string> {
+  //   try {
+  //     const pngBuffer = await sharp(file.buffer)
+  //       .resize({ width: 640, height: 640 })
+  //       .png()
+  //       .toBuffer();
+  //     return pngBuffer.toString("base64");
+  //   } catch (error) {
+  //     console.error("Error preprocessing image:", error.message);
+  //     throw new Error("Image preprocessing failed");
+  //   }
+  // }
 
   async processResult(
     predictions: any
