@@ -13,6 +13,6 @@ export class PhotoEditController {
   @Post()
   @UseInterceptors(FileInterceptor('image'))
   async handleImageUpload(@UploadedFile() file: Express.Multer.File) {
-    return this.photoEditService.editHandler(file);
+    return this.photoEditService.getEditedPhoto(file);
   }
 }
