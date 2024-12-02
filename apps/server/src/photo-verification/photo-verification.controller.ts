@@ -12,6 +12,8 @@ export class VerificationController {
     if (!image) {
       throw new Error("Image data is required");
     }
-    return this.verificationService.getVerification(image);
+    // Base64 문자열에서 데이터만 추출 (Data URI 형식일 경우)
+    const base64Data = image.split(",")[1];
+    return this.verificationService.getVerification(base64Data);
   }
 }

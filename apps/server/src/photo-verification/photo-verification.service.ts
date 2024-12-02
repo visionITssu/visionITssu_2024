@@ -6,8 +6,9 @@ import axios from "axios";
 @Injectable()
 export class VerificationService {
   async getVerification(input: string): Promise<any> {
-    //const inputData = await this.preProcessImage(file);
-    const inferenceData = await this.loadModelFromEC2(input);
+    const buffer = Buffer.from(input, "base64");
+    const inputData = await this.preProcessImage(buffer);
+    const inferenceData = await this.loadModelFromEC2(inputData);
     return await this.processResult(inferenceData);
   }
 
@@ -17,6 +18,7 @@ export class VerificationService {
         //const response = await axios.post("http://localhost:5001/process", {
         input: input, // Base64 인코딩된 이미지 데이터
       });
+
       return response.data; // Python에서 반환된 JSON 데이터를 반환
     } catch (error) {
       console.error("Error fetching prediction from model EC2:", error.message);
@@ -24,18 +26,18 @@ export class VerificationService {
     }
   }
 
-  // async preProcessImage(file: Express.Multer.File): Promise<string> {
-  //   try {
-  //     const pngBuffer = await sharp(file.buffer)
-  //       .resize({ width: 640, height: 640 })
-  //       .png()
-  //       .toBuffer();
-  //     return pngBuffer.toString("base64");
-  //   } catch (error) {
-  //     console.error("Error preprocessing image:", error.message);
-  //     throw new Error("Image preprocessing failed");
-  //   }
-  // }
+  async preProcessImage(buffer: Buffer): Promise<string> {
+    try {
+      const pngBuffer = await sharp(buffer)
+        .resize({ width: 640, height: 640 }) // 크기 조정
+        .png({ quality: 80 }) // 품질 설정
+        .toBuffer();
+      return pngBuffer.toString("base64");
+    } catch (error) {
+      console.error("Error preprocessing image:", error.message);
+      throw new Error("Image preprocessing failed");
+    }
+  }
 
   async processResult(
     predictions: any
@@ -44,7 +46,7 @@ export class VerificationService {
       // YOLO와 facePredictions 데이터를 분리
       const yolo = predictions.yolo_results.output || [];
       const facePredictions = predictions.mediapipe_results || {};
-
+      console.log(predictions);
       let tempVerificationResult = [0, 0, 0, 0, 0]; // 기본값 0으로 초기화
 
       // 조건 1: YOLO 결과 확인
@@ -82,6 +84,7 @@ export class VerificationService {
       if (facePredictions.valid_face_brightness === true) {
         tempVerificationResult[4] = 1;
       }
+      console.log(tempVerificationResult);
       return { tempVerificationResult };
     } catch (error) {
       console.error("Error processing predictions:", error.message);
