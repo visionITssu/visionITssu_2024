@@ -1,16 +1,17 @@
 
-import { Controller, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { Controller, Post, Body } from "@nestjs/common";
+//import { FileInterceptor } from '@nestjs/platform-express';
 import { VerificationService } from "./photo-verification.service";
-
 
 @Controller("verification")
 export class VerificationController {
   constructor(private readonly verificationService: VerificationService) {}
 
   @Post()
-  @UseInterceptors(FileInterceptor("image"))
-  async handleImageUpload(input: string) {
-    return this.verificationService.getVerification(input);
+  async handleImageUpload(@Body("image") image: string) {
+    if (!image) {
+      throw new Error("Image data is required");
+    }
+    return this.verificationService.getVerification(image);
   }
 }
