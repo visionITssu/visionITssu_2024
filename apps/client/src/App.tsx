@@ -35,6 +35,10 @@ const routes = [
     path: "/result",
     element: <ResultPage />,
   },
+  {
+    path: "/*",
+    element: <LandingPage />,
+  },
 ];
 
 const router = createBrowserRouter(routes);
