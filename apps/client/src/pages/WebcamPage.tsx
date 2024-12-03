@@ -92,7 +92,7 @@ const WebcamPage = () => {
       setVerificationResult(null);
     }
 
-    socketRef.current = io(`${process.env.VITE_BASE_URL}/socket`);
+    socketRef.current = io(`${import.meta.env.VITE_BASE_URL}/socket`);
     socketRef.current.on(
       "stream",
       (data: { tempVerificationResult: number[] | null }) => {
