@@ -67,7 +67,7 @@ const Container = styled.div`
 `;
 
 const BackgroundImg = styled.div`
-  background-image: url("src/assets/plane.svg");
+  background-image: url("/plane.svg");
   background-size: cover;
   background-repeat: no-repeat;
   background-size: 100%;
