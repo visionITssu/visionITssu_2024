@@ -92,7 +92,7 @@ const WebcamPage = () => {
       setVerificationResult(null);
     }
 
-    socketRef.current = io("http://43.201.148.51:5173//socket");
+    socketRef.current = io(`${process.env.BASE_URL}/socket`);
     socketRef.current.on(
       "stream",
       (data: { tempVerificationResult: number[] | null }) => {
