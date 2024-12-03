@@ -1,6 +1,6 @@
 "use client";
 
-import styled, { css } from "styled-components";
+import styled from "styled-components";
 
 import { ReactNode } from "react";
 

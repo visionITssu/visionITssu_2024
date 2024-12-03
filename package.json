@@ -26,6 +26,7 @@
     "path-scurry": "^2.0.0",
     "socket.io-client": "^4.8.1",
     "styled-components": "^6.1.13",
+    "vite": "^6.0.2",
     "vite-plugin-svgr": "^4.3.0"
   }
 }
