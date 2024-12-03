@@ -10,22 +10,6 @@ import theme from "./style/theme";
 import ResultPage from "./pages/ResultPage";
 import AlbumUploadPage from "./pages/AlbumUploadPage";
 
-function App() {
-  return (
-    <RootProvider>
-      <ThemeProvider theme={theme}>
-        <Wrapper>
-          <PageWrapper>
-            <RouterProvider router={router} />
-          </PageWrapper>
-        </Wrapper>
-      </ThemeProvider>
-    </RootProvider>
-  );
-}
-
-export default App;
-
 const routes = [
   {
     path: "/",
@@ -54,6 +38,22 @@ const routes = [
 ];
 
 const router = createBrowserRouter(routes);
+
+function App() {
+  return (
+    <RootProvider>
+      <ThemeProvider theme={theme}>
+        <Wrapper>
+          <PageWrapper>
+            <RouterProvider router={router} />
+          </PageWrapper>
+        </Wrapper>
+      </ThemeProvider>
+    </RootProvider>
+  );
+}
+
+export default App;
 
 const Wrapper = styled.div`
   padding: "0 27.5px";
