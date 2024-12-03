@@ -11,7 +11,8 @@ const AlbumUploadPage = () => {
   const [selectedImgUrl, setSelectedImgUrl] = useState<string>(
     queryParams.get("image") ?? ""
   );
-  const { setVerificationResult } = useContext(PhotoContext);
+  const { verificationResult, setVerificationResult } =
+    useContext(PhotoContext);
 
   const handleReuploadClick = () => {
     if (selectedImgUrl) {
@@ -42,6 +43,9 @@ const AlbumUploadPage = () => {
   };
 
   const handleUploadClick = async () => {
+    if (verificationResult) {
+      setVerificationResult(null);
+    }
     if (!selectedImgUrl) {
       alert("사진을 선택해주세요");
       return;
