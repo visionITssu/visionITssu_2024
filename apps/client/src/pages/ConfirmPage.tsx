@@ -6,9 +6,11 @@ import { useContext, useState } from "react";
 import { Button } from "@repo/ui/button";
 import { PhotoContext } from "../providers/RootProvider";
 import axiosInstance from "../axios.config";
+import { Modal } from "@repo/ui/modal";
 
 const ConfirmPage = () => {
   const [isOpen, setIsOpen] = useState<boolean>(true);
+  const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const navigate = useNavigate();
   const { verificationResult } = useContext(PhotoContext);
   const valid = verificationResult?.every((item) => item === 1) ? true : false;
@@ -21,7 +23,6 @@ const ConfirmPage = () => {
 
   const handleRetakeClick = () => {
     navigate("/");
-    URL.revokeObjectURL(imgData);
   };
 
   const base64ToBlob = (base64: string) => {
@@ -37,20 +38,22 @@ const ConfirmPage = () => {
 
   const handleCompleteClick = async () => {
     if (imgData) {
+      setIsProcessing(true);
       const blob = base64ToBlob(imgData);
+
       const formData = new FormData();
       formData.append("image", blob);
-
-      console.log("formatData", formData);
 
       try {
         const res = await axiosInstance.post("/photo-edit", formData, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
+          responseType: "blob",
         });
-        const resToUrl = `result?image=${encodeURIComponent(res.data)}`;
-        navigate(`/${resToUrl}`);
+
+        const imgUrl = URL.createObjectURL(res.data);
+        navigate(`/result?image=${encodeURIComponent(imgUrl)}`);
       } catch (err) {
         console.error(err);
       }
@@ -67,8 +70,9 @@ const ConfirmPage = () => {
 
   return (
     <Container>
+      <Modal visible={isProcessing}>여권 사진을 만들고 있어요</Modal>
       <Photo src={imgData} />
-      <Checklist id="Checklist" open={isOpen ? "true" : "false"}>
+      <Checklist id="Checklist" $open={isOpen ? "true" : "false"}>
         <ChecklistHeader onClick={handleToggleChecklist}>
           마지막으로 확인했어요 <ToggleImg src={Toggle} alt="toggle" />
         </ChecklistHeader>
@@ -116,7 +120,7 @@ const Photo = styled.img`
   height: 275px;
 `;
 
-const Checklist = styled.div<{ open: string }>`
+const Checklist = styled.div<{ $open: string }>`
   width: 320px;
   height: 230px;
   border: 1px solid #0c1870;
@@ -130,9 +134,9 @@ const Checklist = styled.div<{ open: string }>`
   transition:
     height 0.3s ease,
     bottom 0.3s ease;
-  height: ${({ open }) => (open === "true" ? "300px" : "40px")};
+  height: ${({ $open }) => ($open === "true" ? "300px" : "40px")};
   position: relative;
-  bottom: ${({ open }) => (open === "true" ? "0px" : "-260px")};
+  bottom: ${({ $open }) => ($open === "true" ? "0px" : "-260px")};
 `;
 
 const ChecklistHeader = styled.div`

@@ -49,6 +49,7 @@ export class PhotoEditService {
   }
 
   preProcessImage(file: Express.Multer.File): Buffer {
+    console.log(file);
     try {
       // 파일 버퍼 반환
       return file.buffer;

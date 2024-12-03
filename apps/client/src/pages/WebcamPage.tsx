@@ -13,8 +13,8 @@ const WebcamPage = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const socketRef = useRef<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isValid, setIsValid] = useState(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isValid, setIsValid] = useState<boolean>(false);
   const { verificationResult, setVerificationResult } =
     useContext(PhotoContext);
   const [countdown, setCountdown] = useState<number>(3);
@@ -96,7 +96,6 @@ const WebcamPage = () => {
     socketRef.current.on(
       "stream",
       (data: { tempVerificationResult: number[] | null }) => {
-        console.log("Received data from backend:", data.tempVerificationResult);
         setVerificationResult(data.tempVerificationResult);
       }
     );
@@ -120,7 +119,7 @@ const WebcamPage = () => {
     };
     setupWebcam();
 
-    const captureInterval = setInterval(captureAndSendFrame, 500);
+    const captureInterval = setInterval(captureAndSendFrame, 1000);
 
     return () => {
       clearInterval(captureInterval);
@@ -135,7 +134,7 @@ const WebcamPage = () => {
   }, []);
 
   useEffect(() => {
-    if (verificationResult && verificationResult.every((item) => item === 1)) {
+    if (verificationResult?.every((item) => item === 1)) {
       setIsValid(true);
     } else {
       setIsValid(false);
@@ -157,7 +156,10 @@ const WebcamPage = () => {
         clearInterval(countdownIntervalId);
       };
     }
-  }, [isValid, verificationResult]);
+    return () => {
+      setCountdown(3);
+    };
+  }, [isValid]);
 
   const checklistArr: string[] = [
     "착용물이 없어요",

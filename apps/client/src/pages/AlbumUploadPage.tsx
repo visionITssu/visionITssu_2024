@@ -48,16 +48,15 @@ const AlbumUploadPage = () => {
     }
 
     const formData = new FormData();
-    console.log(selectedImgUrl, "selectedImgURl");
     formData.append("image", selectedImgUrl);
 
     try {
       const res = await axiosInstance.post("/verification", formData, {
         headers: {
-          "Content-Type": "multipart/form-data",
+          "Content-Type": "application/json",
         },
       });
-      setVerificationResult(res.data);
+      setVerificationResult(res.data.tempVerificationResult);
       navigate(`/confirm?image=${encodeURIComponent(selectedImgUrl)}`);
     } catch (err) {
       console.error(err);
