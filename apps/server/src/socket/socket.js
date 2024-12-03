@@ -1,4 +1,4 @@
-const socket = io("http://localhost:5173/socket", {
+const socket = io("http://localhost:5003/socket", {
   transports: ["websocket"],
   upgrade: false,
 });

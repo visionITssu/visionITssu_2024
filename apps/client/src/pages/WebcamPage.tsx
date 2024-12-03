@@ -1,16 +1,23 @@
 import styled from "styled-components";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useContext } from "react";
 import GuideLine from "../assets/guideLine.svg";
-import CheckSymbol from "../assets/checkSymbol.svg";
+import CheckSymbol from "../assets/checkSymbol.svg?react";
 import { io } from "socket.io-client";
 import { useNavigate } from "react-router-dom";
+import { Button } from "@repo/ui/button";
+import { Modal } from "@repo/ui/modal";
+import { PhotoContext } from "../providers/RootProvider";
 
 const WebcamPage = () => {
   const navigate = useNavigate();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const socketRef = useRef<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isValid, setIsValid] = useState<boolean>(false);
+  const { verificationResult, setVerificationResult } =
+    useContext(PhotoContext);
+  const [countdown, setCountdown] = useState<number>(3);
 
   const captureImage = () => {
     if (videoRef.current) {
@@ -81,10 +88,17 @@ const WebcamPage = () => {
   };
 
   useEffect(() => {
+    if (verificationResult) {
+      setVerificationResult(null);
+    }
+
     socketRef.current = io("http://localhost:5002/socket");
-    socketRef.current.on("stream", (data: Array<number>) => {
-      console.log("Received data from backend:", data);
-    });
+    socketRef.current.on(
+      "stream",
+      (data: { tempVerificationResult: number[] | null }) => {
+        setVerificationResult(data.tempVerificationResult);
+      }
+    );
 
     const setupWebcam = async () => {
       try {
@@ -105,7 +119,7 @@ const WebcamPage = () => {
     };
     setupWebcam();
 
-    const captureInterval = setInterval(captureAndSendFrame, 1500);
+    const captureInterval = setInterval(captureAndSendFrame, 1000);
 
     return () => {
       clearInterval(captureInterval);
@@ -119,17 +133,51 @@ const WebcamPage = () => {
     };
   }, []);
 
+  useEffect(() => {
+    if (verificationResult?.every((item) => item === 1)) {
+      setIsValid(true);
+    } else {
+      setIsValid(false);
+    }
+  }, [verificationResult]);
+
+  useEffect(() => {
+    if (isValid) {
+      const countdownIntervalId = setInterval(() => {
+        setCountdown((prev) => prev - 1);
+      }, 1000);
+      const timeoutId = setTimeout(() => {
+        clearInterval(countdownIntervalId);
+        handleCaptureClick();
+      }, 4000);
+
+      return () => {
+        clearTimeout(timeoutId);
+        clearInterval(countdownIntervalId);
+      };
+    }
+    return () => {
+      setCountdown(3);
+    };
+  }, [isValid]);
+
   const checklistArr: string[] = [
+    "착용물이 없어요",
     "얼굴을 가리지 않았어요",
     "정면이에요",
     "무표정이에요",
     "빛이 충분해요",
-    "착용물이 없어요",
   ];
 
   return (
     <Container>
-      {isLoading ? "loading..." : ""}
+      <>{isLoading ? "loading..." : ""}</>
+      <Modal visible={isValid}>
+        <>
+          움직이지 말아주세요. 움직이면 재촬영이 필요합니다.
+          <br /> <br /> {countdown > 0 ? countdown : <br />}
+        </>
+      </Modal>
       <CameraContainer id="CameraContainer">
         <Canvas ref={canvasRef} id="Canvas" />
         <Line src={GuideLine} alt="guide line" />
@@ -146,15 +194,29 @@ const WebcamPage = () => {
         </VideoContainer>
       </CameraContainer>
       <Checklist id="Checklist">
-        {<ChecklistHeader>모든 규정을 지키면 촬영할 수 있어요</ChecklistHeader>}
-        {checklistArr.map((item, idx) => (
-          <ChecklistContents key={idx}>
-            <Check src={CheckSymbol} />
-            {item}
-          </ChecklistContents>
-        ))}
+        <ChecklistHeader>모든 규정을 지키면 촬영할 수 있어요</ChecklistHeader>
+        {verificationResult
+          ? verificationResult
+              .sort((a, b) => a - b)
+              .map((item, idx) => (
+                <ChecklistContents key={idx} active={item}>
+                  <Check active={item} />
+                  {checklistArr[idx]}
+                </ChecklistContents>
+              ))
+          : [0, 0, 0, 0, 0].map((item, idx) => (
+              <ChecklistContents key={idx} active={item}>
+                <Check active={item} />
+                {checklistArr[idx]}
+              </ChecklistContents>
+            ))}
       </Checklist>
-      <Button onClick={handleCaptureClick}>촬영</Button>
+      <Button
+        className={isValid ? "primary" : "inactive"}
+        clickButton={isValid ? () => handleCaptureClick() : () => {}}
+      >
+        촬영
+      </Button>
     </Container>
   );
 };
@@ -164,10 +226,6 @@ export default WebcamPage;
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: center;
-  background-image: url("../assets/plane.svg");
-  background-size: cover;
-  background-repeat: no-repeat;
 `;
 
 const CameraContainer = styled.div`
@@ -191,9 +249,8 @@ const Line = styled.img`
 const VideoContainer = styled.div`
   width: 320px;
   height: 414px;
-  border-radius: 24px;
   position: absolute;
-  top: 40px;
+  top: 32px;
 `;
 
 const Video = styled.video`
@@ -214,6 +271,7 @@ const Checklist = styled.div`
   flex-direction: column;
   align-items: flex-start;
   overflow: scroll;
+  margin-bottom: 40px;
 `;
 
 const ChecklistHeader = styled.div`
@@ -227,7 +285,7 @@ const ChecklistHeader = styled.div`
   background-color: #ffffff;
 `;
 
-const ChecklistContents = styled.div`
+const ChecklistContents = styled.div<{ active?: number }>`
   font-weight: 600;
   font-size: 16px;
   line-height: 32px;
@@ -235,21 +293,12 @@ const ChecklistContents = styled.div`
   margin: 10px 20px;
   display: flex;
   flex-direction: row;
+  color: ${({ active, theme }) => (active ? theme.colors.blue : "gray")};
 `;
 
-const Check = styled.img`
+const Check = styled(CheckSymbol)<{ active?: number }>`
   margin-right: 10px;
-`;
-
-const Button = styled.button`
-  margin: 20px;
-  border: 1px solid #b8b8b8;
-  border-radius: 12px;
-  background-color: #b8b8b8;
-  color: white;
-  padding: 18px 16px;
-  font-size: 18px;
-  line-height: 32px;
-  font-weight: 500;
-  width: 320px;
+  path {
+    stroke: ${({ active, theme }) => (active ? theme.colors.blue : "gray")};
+  }
 `;

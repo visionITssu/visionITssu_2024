@@ -1,38 +1,61 @@
-import { Injectable } from '@nestjs/common';
-import { promises as fs } from 'fs';
-import * as path from 'path';
-//import { PythonShell } from 'python-shell';
+import { Injectable } from "@nestjs/common";
+import axios from "axios";
+import * as FormData from "form-data";
 
 @Injectable()
 export class PhotoEditService {
-  async editHandler(file: Express.Multer.File): Promise<any> {
+  async getEditedPhoto(file: Express.Multer.File): Promise<any> {
     try {
-      const fileName = `${Date.now()}.txt`;
-      const inputFilePath = path.join(
-        process.cwd(),
-        "src",
-        "verify_temp",
-        fileName
+      // 파일 버퍼 가져오기
+      const fileBuffer = this.preProcessImage(file);
+
+      // EC2 모델 서버 호출
+      const editedPhoto = await this.loadModelFromEC2(
+        fileBuffer,
+        file.originalname
       );
-      const outputImagePath = path.join(process.cwd(), "temp.png");
 
-      const options = {
-        scriptPath: "",
-        args: [inputFilePath],
-      };
+      return editedPhoto;
+    } catch (error) {
+      console.error("Error in getEditedPhoto: ", error.message);
+      throw new Error("Photo edit failed.");
+    }
+  }
 
-      //await fs.mkdir(path.dirname(inputFilePath), { recursive: true });
-      //await fs.writeFile(inputFilePath, file.buffer.toString('base64'), 'utf8');
-      //await PythonShell.run('Demo/cropface.py', options);
+  async loadModelFromEC2(fileBuffer: Buffer, filename: string): Promise<any> {
+    try {
+      // FormData 생성
+      const formData = new FormData();
+      formData.append("image", fileBuffer, filename); // 파일 이름을 명시적으로 추가
 
-      const imageBuffer = await fs.readFile(outputImagePath);
-      console.log(imageBuffer);
-      const imageBase64 = imageBuffer.toString("base64");
-      console.log(imageBase64);
+      console.log("Sending FormData to Flask server...");
+      console.log("Headers:", formData.getHeaders());
 
-      return `data:image/png;base64,${imageBase64}`;
-    } catch (e) {
-      console.log(e, 'photo-edit error');
+      // 모델 서버 요청
+      const response = await axios.post(
+        "http://3.37.203.103:5001/crop",
+        formData,
+        {
+          headers: formData.getHeaders(), // FormData에서 자동 생성된 헤더 사용
+          responseType: "arraybuffer", // 바이너리 데이터로 수신
+        }
+      );
+
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching crop from model EC2:", error.message);
+      throw new Error("Model inference failed.");
+    }
+  }
+
+  preProcessImage(file: Express.Multer.File): Buffer {
+    console.log(file);
+    try {
+      // 파일 버퍼 반환
+      return file.buffer;
+    } catch (error) {
+      console.error("Error preprocessing image:", error.message);
+      throw new Error("Image preprocessing failed.");
     }
   }
 }

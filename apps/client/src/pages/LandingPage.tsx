@@ -1,9 +1,28 @@
 import { useNavigate } from "react-router-dom";
 import logo from "../assets/ai-pass.svg";
 import styled from "styled-components";
+import { Button } from "@repo/ui/button";
 
 const LandingPage = () => {
   const navigate = useNavigate();
+
+  const handleAlbumUploadClick = () => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/*";
+    input.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const imgUrl = reader.result as string;
+          navigate(`/album?image=${encodeURIComponent(imgUrl)}`);
+        };
+        reader.readAsDataURL(file);
+      }
+    };
+    input.click();
+  };
 
   const handleWebcamClick = () => {
     navigate("/guide");
@@ -16,7 +35,7 @@ const LandingPage = () => {
         <img src={logo} alt="img" />
       </Logo>
       <Title>
-        <TitleHeader>실시간 여권 규정 검증</TitleHeader>
+        <TitleHeader>실시간 여권 사진 검증</TitleHeader>
         <div>더욱 빠르고 정확한</div>
         <div>여권 사진 촬영</div>
       </Title>
@@ -26,10 +45,15 @@ const LandingPage = () => {
         <Li>얼굴 방향</Li>
         <Li>얼굴 표정</Li>
         <Li>조명 및 그림자</Li>
+        <Li>착용물</Li>
       </Explanation>
       <ButtonContainer>
-        <Button>사진첩에서 업로드</Button>
-        <Button onClick={handleWebcamClick}>지금 촬영</Button>
+        <Button className={"second"} clickButton={handleAlbumUploadClick}>
+          앨범에서 업로드
+        </Button>
+        <Button className={"primary"} clickButton={handleWebcamClick}>
+          지금 촬영
+        </Button>
       </ButtonContainer>
     </Container>
   );
@@ -99,18 +123,7 @@ const Li = styled.li`
 `;
 
 const ButtonContainer = styled.div`
-  margin-top: 108px;
+  margin-top: 76px;
   display: flex;
   flex-direction: column;
-`;
-const Button = styled.button`
-  margin: 8px;
-  border: 1px solid #0c1870;
-  border-radius: 12px;
-  background-color: white;
-  color: #0c1870;
-  padding: 18px 16px;
-  font-size: 18px;
-  line-height: 32px;
-  font-weight: 500;
 `;

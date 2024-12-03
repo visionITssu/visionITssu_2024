@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
-import { AppService } from "./app.service";
-import { PhotoEditModule } from "./photo-edit/photo-edit.module";
-import { SocketModule } from './socket/socket.module';
-import { VerificationModule } from './photo-verification/photo-verification.module';
+import { AppService } from './app.service';
 
+import { SocketModule } from './socket/socket.module';
+import { EditModule } from "./photo-edit/photo-edit.module";
+import { VerificationModule } from "./photo-verification/photo-verification.module";
 
 @Module({
-  imports: [PhotoEditModule, VerificationModule, SocketModule],
+  imports: [VerificationModule, EditModule, SocketModule],
   controllers: [AppController],
   providers: [AppService],
 })

@@ -12,7 +12,7 @@ interface RootContext {
 }
 
 export const PhotoContext = createContext<RootContext>({
-  verificationResult: [1, 1, 1, 1],
+  verificationResult: [0, 0, 0, 0, 0],
   setVerificationResult: () => {},
 });
 

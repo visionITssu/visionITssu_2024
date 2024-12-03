@@ -4,17 +4,22 @@ import "./App.css";
 import LandingPage from "./pages/LandingPage";
 import GuidePage from "./pages/GuidePage";
 import WebcamPage from "./pages/WebcamPage";
-import { styled } from "styled-components";
+import { styled, ThemeProvider } from "styled-components";
 import ConfirmPage from "./pages/ConfirmPage";
+import theme from "./style/theme";
+import ResultPage from "./pages/ResultPage";
+import AlbumUploadPage from "./pages/AlbumUploadPage";
 
 function App() {
   return (
     <RootProvider>
-      <Wrapper>
-        <PageWrapper>
-          <RouterProvider router={router} />
-        </PageWrapper>
-      </Wrapper>
+      <ThemeProvider theme={theme}>
+        <Wrapper>
+          <PageWrapper>
+            <RouterProvider router={router} />
+          </PageWrapper>
+        </Wrapper>
+      </ThemeProvider>
     </RootProvider>
   );
 }
@@ -25,6 +30,10 @@ const routes = [
   {
     path: "/",
     element: <LandingPage />,
+  },
+  {
+    path: "/album",
+    element: <AlbumUploadPage />,
   },
   {
     path: "/guide",
@@ -40,7 +49,7 @@ const routes = [
   },
   {
     path: "/result",
-    element: <></>,
+    element: <ResultPage />,
   },
 ];
 
