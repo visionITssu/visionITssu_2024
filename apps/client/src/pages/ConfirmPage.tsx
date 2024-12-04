@@ -77,14 +77,12 @@ const ConfirmPage = () => {
           마지막으로 확인했어요 <ToggleImg src={Toggle} alt="toggle" />
         </ChecklistHeader>
         {verificationResult
-          ? verificationResult
-              .sort((a, b) => a - b)
-              .map((item, idx) => (
-                <ChecklistContents key={idx} active={item}>
-                  <Check active={item} />
-                  {checklistArr[idx]}
-                </ChecklistContents>
-              ))
+          ? verificationResult.map((item, idx) => (
+              <ChecklistContents key={idx} active={item}>
+                <Check active={item} />
+                {checklistArr[idx]}
+              </ChecklistContents>
+            ))
           : [0, 0, 0, 0, 0].map((item, idx) => (
               <ChecklistContents key={idx} active={item}>
                 <Check active={item} />

@@ -196,14 +196,12 @@ const WebcamPage = () => {
       <Checklist id="Checklist">
         <ChecklistHeader>모든 규정을 지키면 촬영할 수 있어요</ChecklistHeader>
         {verificationResult
-          ? verificationResult
-              .sort((a, b) => a - b)
-              .map((item, idx) => (
-                <ChecklistContents key={idx} active={item}>
-                  <Check active={item} />
-                  {checklistArr[idx]}
-                </ChecklistContents>
-              ))
+          ? verificationResult.map((item, idx) => (
+              <ChecklistContents key={idx} active={item}>
+                <Check active={item} />
+                {checklistArr[idx]}
+              </ChecklistContents>
+            ))
           : [0, 0, 0, 0, 0].map((item, idx) => (
               <ChecklistContents key={idx} active={item}>
                 <Check active={item} />
