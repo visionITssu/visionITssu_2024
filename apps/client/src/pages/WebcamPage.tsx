@@ -93,7 +93,7 @@ const WebcamPage = () => {
     }
 
     socketRef.current = io(`${import.meta.env.VITE_BASE_URL}/socket`, {
-      timeout: 3000,
+      timeout: 1000,
     });
 
     socketRef.current.on("connect_error", () => {

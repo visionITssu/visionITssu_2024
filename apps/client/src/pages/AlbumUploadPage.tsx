@@ -63,7 +63,9 @@ const AlbumUploadPage = () => {
       setVerificationResult(res.data.tempVerificationResult);
       navigate(`/confirm?image=${encodeURIComponent(selectedImgUrl)}`);
     } catch (err) {
-      console.error(err);
+      alert(
+        "서버가 중단되었습니다. 불편을 드려 죄송합니다. \n 문의 사항 : sna0e@naver.com"
+      );
     }
   };
 
