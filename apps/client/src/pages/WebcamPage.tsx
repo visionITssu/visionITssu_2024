@@ -92,7 +92,16 @@ const WebcamPage = () => {
       setVerificationResult(null);
     }
 
-    socketRef.current = io(`${import.meta.env.VITE_BASE_URL}/socket`);
+    socketRef.current = io(`${import.meta.env.VITE_BASE_URL}/socket`, {
+      timeout: 3000,
+    });
+
+    socketRef.current.on("connect_error", () => {
+      alert(
+        "서버가 중단되었습니다. 불편을 드려 죄송합니다. \n 문의 사항 : sna0e@naver.com"
+      );
+    });
+
     socketRef.current.on(
       "stream",
       (data: { tempVerificationResult: number[] | null }) => {
@@ -209,12 +218,15 @@ const WebcamPage = () => {
               </ChecklistContents>
             ))}
       </Checklist>
-      <Button
-        className={isValid ? "primary" : "inactive"}
-        clickButton={isValid ? () => handleCaptureClick() : () => {}}
-      >
-        촬영
-      </Button>
+      <ButtonContainer>
+        {" "}
+        <Button
+          className={isValid ? "primary" : "inactive"}
+          clickButton={isValid ? () => handleCaptureClick() : () => {}}
+        >
+          촬영
+        </Button>
+      </ButtonContainer>
     </Container>
   );
 };
@@ -224,6 +236,7 @@ export default WebcamPage;
 const Container = styled.div`
   display: flex;
   flex-direction: column;
+  align-items: center;
 `;
 
 const CameraContainer = styled.div`
@@ -299,4 +312,11 @@ const Check = styled(CheckSymbol)<{ active?: number }>`
   path {
     stroke: ${({ active, theme }) => (active ? theme.colors.blue : "gray")};
   }
+`;
+
+const ButtonContainer = styled.div`
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  width: 86vw;
 `;
